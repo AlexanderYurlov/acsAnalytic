@@ -12,17 +12,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PumpDataInitialization {
+public class ElectricChargingStation {
 
     /**
-     * Количество уровней
+     * Количество уровней зарядки (т)
      */
     Integer n;
 
     /**
-     * The total number of pumps
+     * The total number of pumps (pump_tot)
      */
-    Integer pump_tot;
+    Integer pumpTotal;
 
     /**
      * Numbers of pumps per tier: Pump1, …, PumpN;

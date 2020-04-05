@@ -5,7 +5,7 @@ import java.util.Map;
 import lombok.Data;
 
 @Data
-public class VehicleDataInitialization {
+public class AutoTraffic {
 
     /**
      * Charging requests’ arrival rate

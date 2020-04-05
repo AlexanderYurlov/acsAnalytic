@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.acs.analytic.acsAnalytic.model.PumpDataInitialization;
+import com.acs.analytic.acsAnalytic.model.ElectricChargingStation;
 import com.acs.analytic.acsAnalytic.service.AcsService;
 
 @RestController
@@ -19,11 +19,14 @@ public class AcsController {
 
     @GetMapping(BASE_PATH)
     @ResponseStatus(HttpStatus.OK)
-    public PumpDataInitialization checkget() {
+    public ElectricChargingStation checkget() {
         System.out.println("checked");
-        PumpDataInitialization pumpDataInitialization = PumpDataInitialization.builder().n(100).build();
-        System.out.println(pumpDataInitialization);
-        return pumpDataInitialization;
+        ElectricChargingStation electricChargingStation = ElectricChargingStation.builder()
+                .n(100)
+                .pumpTotal(3)
+                .build();
+        System.out.println(electricChargingStation);
+        return electricChargingStation;
     }
 
     @PostMapping(BASE_PATH)
