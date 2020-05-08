@@ -3,6 +3,7 @@ package com.acs.analytic.acsAnalytic.service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,7 @@ public class VehicleDataGenerationService {
     private static final Integer FACTOR_ARRIVAL_TIME = 25;
     private static final Float MIN_BAT_CAPACITY = .7f;
     private static final Float MIN_TIER_WAIT_AV = .8f;
+    private static final Random random = new Random();
 
     public List<Vehicle> generate(InitialData initialData) {
 
@@ -47,7 +49,7 @@ public class VehicleDataGenerationService {
 
 //             waiting time is within 20% margin from the average
 //            deadl_t(i,1)=(0.4*rand+0.8)*Tier_Wait_Aver(tier(i,1));
-            var deadlT = (MIN_TIER_WAIT_AV + .2f * Math.random()) * tier.getMaxWaitingTime();
+            var deadlT = (MIN_TIER_WAIT_AV + .2f * random.nextDouble()) * tier.getMaxWaitingTime();
             vehicle.setDeadlT(deadlT);
 
             List<Double> chargT = getChargT(tier, initialData.getR());
@@ -73,7 +75,7 @@ public class VehicleDataGenerationService {
      * e_arr_t=5+25*rand(Veh_max,1);
      */
     private Double generateEArrT() {
-        return MINIMUM_ARRIVAL_TIME + FACTOR_ARRIVAL_TIME * Math.random();
+        return MINIMUM_ARRIVAL_TIME + FACTOR_ARRIVAL_TIME * random.nextDouble();
     }
 
     /**
@@ -81,7 +83,7 @@ public class VehicleDataGenerationService {
      * IA = 60*exprnd(1/lambda,Veh_max-1,1); inter arrival interval (IA) follows exponential distribution
      */
     private double generateIa(Float arrivalRate) {
-        double x = 1 - Math.random();
+        double x = 1 - random.nextDouble();
         System.out.println("x  = " + x);
         double ia = HOUR * Math.log(x) / (-arrivalRate);
         System.out.println("ia = " + ia);
@@ -92,7 +94,7 @@ public class VehicleDataGenerationService {
 
 //            en_dem is 70-90% of tier's Bat_cap
 //            en_dem(i,1)=(0.2*rand+0.7)*Bat_cap(tier(i,1));
-        var enDem = (MIN_BAT_CAPACITY + .2f * Math.random()) * tier.getBatteryCapacity();
+        var enDem = (MIN_BAT_CAPACITY + .2f * random.nextDouble()) * tier.getBatteryCapacity();
 
         List<Double> chargT = new ArrayList<>();
         for (Tier value : r) {
