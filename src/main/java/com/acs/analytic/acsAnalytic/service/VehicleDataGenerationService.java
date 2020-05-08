@@ -79,11 +79,10 @@ public class VehicleDataGenerationService {
     /**
      * Generate an exponential random variable - part of the loop (must be repeated). Change the description in the block to multiple values
      * IA = 60*exprnd(1/lambda,Veh_max-1,1); inter arrival interval (IA) follows exponential distribution
-     * @param arrivalRate
      */
     private double generateIa(Float arrivalRate) {
-        Double x = 1 - Math.random();
-        System.out.println("x  = " +x);
+        double x = 1 - Math.random();
+        System.out.println("x  = " + x);
         double ia = HOUR * Math.log(x) / (-arrivalRate);
         System.out.println("ia = " + ia);
         return ia;
