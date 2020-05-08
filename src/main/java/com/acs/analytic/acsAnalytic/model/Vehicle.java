@@ -1,6 +1,11 @@
 package com.acs.analytic.acsAnalytic.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.Data;
+
+import com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType;
 
 @Data
 public class Vehicle {
@@ -10,7 +15,7 @@ public class Vehicle {
     /**
      * с колёс/ через запрос
      */
-    String type;
+    VehicleRequestType type;
 
 //    /**
 //     * Список используемых зарядок
@@ -20,27 +25,27 @@ public class Vehicle {
     /**
      * Зарядка используемая по умолчанию
      */
-    Tier tier;
+    Integer tierIndex;
 
     /**
      * Время запроса на зарядку
      */
-    Long arrT;
+    Double arrT;
 
     /**
-     * Время зарядки зарядкой по умолчанию
+     * Время зарядки зарядкой по умолчанию, для различных зарядных устройств.
      */
-    Long chargT;
+    List<Double> chargT;
 
     /**
      * нижняя граница предпологаемого прибытия на станцию
      */
-    Long eArrT;
+    Double eArrT;
 
     /**
      * Верхняя граница. Время окончания зарядки
      */
-    Long deadlT;
+    Double deadlT;
 
     /**
      * Используемаый зарядник(pump)

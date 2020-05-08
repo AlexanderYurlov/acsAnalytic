@@ -6,6 +6,7 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Data
@@ -13,7 +14,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class InitialData {
-
 
     /**
      * Количество уровней зарядки (т)
@@ -51,7 +51,7 @@ public class InitialData {
     /**
      * типы зарядок автомобилей и их соотношение ( сумма = 1)
      */
-    Map<Integer, Float> r;
+    List<Tier> r;
 
     /**
      * Walk-in client ratio (RW + RR = 1)
