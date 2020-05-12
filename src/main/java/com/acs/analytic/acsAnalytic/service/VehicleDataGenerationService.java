@@ -1,9 +1,17 @@
 package com.acs.analytic.acsAnalytic.service;
 
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -165,7 +173,62 @@ public class VehicleDataGenerationService {
 //                .timeGeneration()
                 .n(11)
                 .build();
-        new VehicleDataGenerationService().generate(initialData);
+        List<Vehicle> vehicles = new VehicleDataGenerationService().generate(initialData);
+        writeToCSV(vehicles);
     }
 
+    private static void writeToCSV(List<Vehicle> Vehicle) {
+        final String CSV_SEPARATOR = ";";
+        final DecimalFormat format = new DecimalFormat("##.00");
+        try {
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("vehicle.csv"), "UTF-8"));
+            bw.write("Id" + CSV_SEPARATOR +
+                    "Type" + CSV_SEPARATOR +
+                    "TierIndex" + CSV_SEPARATOR +
+                    "ArrT" + CSV_SEPARATOR +
+                    "ChargT" + CSV_SEPARATOR +
+                    "EArrT" + CSV_SEPARATOR +
+                    "DeadlT" + CSV_SEPARATOR +
+                    "Pump" + CSV_SEPARATOR +
+                    "ComplT" + CSV_SEPARATOR +
+                    "ActArrT" + CSV_SEPARATOR +
+                    "ActComplT" + CSV_SEPARATOR +
+                    "ResArrT"
+            );
+            bw.newLine();
+            for (Vehicle vehicle : Vehicle) {
+                StringBuffer oneLine = new StringBuffer();
+                oneLine.append(vehicle.getId() == null ? "" : vehicle.getId());
+                oneLine.append(CSV_SEPARATOR);
+                oneLine.append(vehicle.getType() == null ? "" : vehicle.getType());
+                oneLine.append(CSV_SEPARATOR);
+                oneLine.append(vehicle.getTierIndex() == null ? "" : vehicle.getTierIndex());
+                oneLine.append(CSV_SEPARATOR);
+                oneLine.append(vehicle.getArrT() == null ? "" : format.format(vehicle.getArrT()));
+                oneLine.append(CSV_SEPARATOR);
+                oneLine.append(vehicle.getChargT() == null ? "" : vehicle.getChargT().stream().map(x -> format.format(x)).collect(Collectors.joining(", ", "[", "]")));
+                oneLine.append(CSV_SEPARATOR);
+                oneLine.append(vehicle.getEArrT() == null ? "" : format.format(vehicle.getEArrT()));
+                oneLine.append(CSV_SEPARATOR);
+                oneLine.append(vehicle.getDeadlT() == null ? "" : format.format(vehicle.getDeadlT()));
+                oneLine.append(CSV_SEPARATOR);
+                oneLine.append(vehicle.getPump() == null ? "" : vehicle.getPump());
+                oneLine.append(CSV_SEPARATOR);
+                oneLine.append(vehicle.getComplT() == null ? "" : format.format(vehicle.getComplT()));
+                oneLine.append(CSV_SEPARATOR);
+                oneLine.append(vehicle.getActArrT() == null ? "" : format.format(vehicle.getActArrT()));
+                oneLine.append(CSV_SEPARATOR);
+                oneLine.append(vehicle.getActComplT() == null ? "" : format.format(vehicle.getActComplT()));
+                oneLine.append(CSV_SEPARATOR);
+                oneLine.append(vehicle.getResArrT() == null ? "" : format.format(vehicle.getResArrT()));
+                bw.write(oneLine.toString());
+                bw.newLine();
+            }
+            bw.flush();
+            bw.close();
+        } catch (UnsupportedEncodingException e) {
+        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
+        }
+    }
 }

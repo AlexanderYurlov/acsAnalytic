@@ -65,7 +65,7 @@ public class Vehicle {
     /**
      * Фактическое время окончания зарядки
      */
-    Long act_compl_t;
+    Long actComplT;
 
     /**
      * Обновляемое время прибытия на станцию
