@@ -7,5 +7,8 @@ public class PumpTier {
 
     Integer id;
 
-    Tier tier;
+    /**
+     * Tier's index
+     */
+    Integer tierIndex;
 }

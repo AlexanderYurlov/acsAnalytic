@@ -27,8 +27,4 @@ public class Tier {
      */
     Integer maxWaitingTime;
 
-    /**
-     * Vehicle ratios (R1, R2, ..., RN). SUMM(R1, R2, ..., RN) = 1
-     */
-    Float vehicleRatio;
 }

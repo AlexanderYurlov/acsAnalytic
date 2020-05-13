@@ -8,8 +8,8 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import com.acs.analytic.acsAnalytic.model.InitialData;
 import com.acs.analytic.acsAnalytic.model.Tier;
 import com.acs.analytic.acsAnalytic.model.Vehicle;
+import com.acs.analytic.acsAnalytic.model.VehicleTier;
 import com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType;
 
 import static com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType.RR;
@@ -41,18 +42,19 @@ public class VehicleDataGenerationService {
         List<Vehicle> vehicles = new ArrayList(initialData.getVehMax());
 
         var rw = 0;
-        var listR = new ArrayList<>(Collections.nCopies(initialData.getR().size(), 0));
+        Map<Integer, Integer> mapR = initialData.getTiers().stream().collect(Collectors.toMap(Tier::getIndex, x -> 0));
+        System.out.println("mapR = " + mapR);
         for (int i = 0; i < initialData.getVehMax(); i++) {
             var vehicle = new Vehicle();
 
-            vehicle.setId(i);
+            vehicle.setId(i + 1);
 
             var vehicleRequestType = getVehicleRequestType(rw, i, initialData.getRw());
             rw = vehicleRequestType == RW ? rw + 1 : rw;
             vehicle.setType(vehicleRequestType);
 
-            var tier = getTier(listR, i, initialData.getR());
-            listR.set(tier.getIndex(), listR.get(tier.getIndex()) + 1);
+            var tier = getTier(mapR, i, initialData);
+            mapR.put(tier.getIndex(), mapR.get(tier.getIndex()) + 1);
             vehicle.setTierIndex(tier.getIndex());
 
 //             waiting time is within 20% margin from the average
@@ -60,7 +62,7 @@ public class VehicleDataGenerationService {
             var deadlT = (MIN_TIER_WAIT_AV + .2f * random.nextDouble()) * tier.getMaxWaitingTime();
             vehicle.setDeadlT(deadlT);
 
-            List<Double> chargT = getChargT(tier, initialData.getR());
+            List<Double> chargT = getChargT(tier, initialData.getTiers());
             vehicle.setChargT(chargT);
 
             if (i == 0) {
@@ -92,8 +94,8 @@ public class VehicleDataGenerationService {
      */
     private double generateIa(Float arrivalRate) {
         double x = 1 - random.nextDouble();
-        System.out.println("x  = " + x);
         double ia = HOUR * Math.log(x) / (-arrivalRate);
+        System.out.println("x  = " + x);
         System.out.println("ia = " + ia);
         return ia;
     }
@@ -116,14 +118,15 @@ public class VehicleDataGenerationService {
     }
 
     //TODO Make it completely randomly
-    private Tier getTier(ArrayList<Integer> listR, int i, List<Tier> r) {
-        for (int j = 0; j < r.size(); j++) {
-            float ratio = (float) listR.get(j) / (i + 1);
-            if (ratio <= r.get(j).getVehicleRatio()) {
-                return r.get(j);
+    private Tier getTier(Map<Integer, Integer> mapR, int i, InitialData initialData) {
+        List<VehicleTier> r = initialData.getR();
+        for (VehicleTier vt : r) {
+            float ratio = (float) mapR.get(vt.getTierIndex()) / (i + 1);
+            if (ratio <= vt.getVehicleRatio()) {
+                return initialData.getTierByIndex(vt.getTierIndex());
             }
         }
-        return r.get(r.size() - 1);
+        return initialData.getTierByIndex(r.get(r.size() - 1).getTierIndex());
     }
 
     //TODO Make it completely randomly
@@ -138,35 +141,48 @@ public class VehicleDataGenerationService {
 
     public static void main(String[] args) {
         InitialData initialData = InitialData.builder()
+                .tiers(List.of(
+                        Tier.builder()
+                                .index(1)
+                                .batteryCapacity(81)
+                                .energyAcceptanceRate(120f)
+                                .maxWaitingTime(120)
+                                .build(),
+                        Tier.builder()
+                                .index(2)
+                                .batteryCapacity(20)
+                                .energyAcceptanceRate(6.6f)
+                                .maxWaitingTime(300)
+                                .build(),
+                        Tier.builder()
+                                .index(3)
+                                .batteryCapacity(14)
+                                .energyAcceptanceRate(3.3f)
+                                .maxWaitingTime(480)
+                                .build()
+
+                        )
+                )
                 .vehMax(1000)
                 .rw(0.23f)
                 .rr(0.77f)
                 .r(List.of(
-                        Tier.builder()
-                                .index(0)
-                                .batteryCapacity(81)
-                                .energyAcceptanceRate(120f)
-                                .maxWaitingTime(120)
+                        VehicleTier.builder()
                                 .vehicleRatio(.22f)
+                                .tierIndex(1)
                                 .build(),
-                        Tier.builder()
-                                .index(1)
-                                .batteryCapacity(20)
-                                .energyAcceptanceRate(6.6f)
-                                .maxWaitingTime(300)
+                        VehicleTier.builder()
                                 .vehicleRatio(.33f)
+                                .tierIndex(2)
                                 .build(),
-                        Tier.builder()
-                                .index(2)
-                                .batteryCapacity(14)
-                                .energyAcceptanceRate(3.3f)
-                                .maxWaitingTime(480)
+                        VehicleTier.builder()
                                 .vehicleRatio(.45f)
+                                .tierIndex(3)
                                 .build()
                         )
                 )
-                .n(100)
-                .pumpTotal(3)
+//                .n(100)
+//                .pumpTotal(3)
 //              .pumpMap()
 //                .sharablePumps()
                 .arrivalRate(12f)

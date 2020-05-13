@@ -16,6 +16,19 @@ import lombok.NoArgsConstructor;
 public class InitialData {
 
     /**
+     * Common Data (Tiers Data) is actual for AutoTraffic
+     */
+    /**
+     * Tiers for Pump and Vehicle
+     */
+    List<Tier> tiers;
+
+
+    /**
+     * ACS Data
+     */
+
+    /**
      * Количество уровней зарядки (т)
      */
     Integer n;
@@ -41,7 +54,6 @@ public class InitialData {
      * AutoTraffic
      */
 
-
     /**
      * Charging requests’ arrival rate
      * константа зависит от города/мегаполиса/местности
@@ -49,9 +61,9 @@ public class InitialData {
     Float arrivalRate;
 
     /**
-     * типы зарядок автомобилей и их соотношение ( сумма = 1)
+     * типы зарядок автомобилей и их соотношение - R ( сумма = 1)
      */
-    List<Tier> r;
+    List<VehicleTier> r;
 
     /**
      * Walk-in client ratio (RW + RR = 1)
@@ -74,4 +86,12 @@ public class InitialData {
      */
     Integer timeGeneration;
 
+    public Tier getTierByIndex(Integer tierIndex) {
+        for (Tier tier: tiers) {
+            if (tier.getIndex().equals(tierIndex)) {
+                return tier;
+            }
+        }
+        return null;
+    }
 }
