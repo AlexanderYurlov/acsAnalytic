@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import com.acs.analytic.acsAnalytic.model.InitialData;
 import com.acs.analytic.acsAnalytic.model.Tier;
 import com.acs.analytic.acsAnalytic.model.Vehicle;
-import com.acs.analytic.acsAnalytic.model.VehicleTier;
+import com.acs.analytic.acsAnalytic.model.TierVehicle;
 import com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType;
 
 import static com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType.RR;
@@ -119,8 +119,8 @@ public class VehicleDataGenerationService {
 
     //TODO Make it completely randomly
     private Tier getTier(Map<Integer, Integer> mapR, int i, InitialData initialData) {
-        List<VehicleTier> r = initialData.getR();
-        for (VehicleTier vt : r) {
+        List<TierVehicle> r = initialData.getR();
+        for (TierVehicle vt : r) {
             float ratio = (float) mapR.get(vt.getTierIndex()) / (i + 1);
             if (ratio <= vt.getVehicleRatio()) {
                 return initialData.getTierByIndex(vt.getTierIndex());
@@ -167,15 +167,15 @@ public class VehicleDataGenerationService {
                 .rw(0.23f)
                 .rr(0.77f)
                 .r(List.of(
-                        VehicleTier.builder()
+                        TierVehicle.builder()
                                 .vehicleRatio(.22f)
                                 .tierIndex(1)
                                 .build(),
-                        VehicleTier.builder()
+                        TierVehicle.builder()
                                 .vehicleRatio(.33f)
                                 .tierIndex(2)
                                 .build(),
-                        VehicleTier.builder()
+                        TierVehicle.builder()
                                 .vehicleRatio(.45f)
                                 .tierIndex(3)
                                 .build()
@@ -187,7 +187,7 @@ public class VehicleDataGenerationService {
 //                .sharablePumps()
                 .arrivalRate(12f)
 //                .timeGeneration()
-                .n(11)
+//                .n(11)
                 .build();
         List<Vehicle> vehicles = new VehicleDataGenerationService().generate(initialData);
         writeToCSV(vehicles);

@@ -22,13 +22,10 @@ public class AcsController {
     public InitialData checkget() {
         System.out.println("checked");
         return InitialData.builder()
-                .n(100)
-                .pumpTotal(3)
 //              .pumpMap()
 //                .sharablePumps()
                 .arrivalRate(0.77f)
 //                .timeGeneration()
-                .n(11)
 //                .r(22)
                 .rr(0.77f)
                 .rw(0.23f)

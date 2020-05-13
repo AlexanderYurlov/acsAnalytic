@@ -49,7 +49,7 @@ public class Vehicle {
     /**
      * Используемаый зарядник(pump)
      */
-    PumpTier pump;
+    TierPump pump;
 
     /**
      * Промежуточное время окончания зарядки. compl_t. Если автомобиль зарядился = 0

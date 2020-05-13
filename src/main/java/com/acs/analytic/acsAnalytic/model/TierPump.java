@@ -1,14 +1,17 @@
 package com.acs.analytic.acsAnalytic.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-public class PumpTier {
+@AllArgsConstructor
+public class TierPump {
 
-    Integer id;
+    int id;
 
     /**
      * Tier's index
      */
-    Integer tierIndex;
+    Tier Tier;
+
 }

@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class VehicleTier {
+public class TierVehicle {
 
     /**
      * Vehicle ratios (R1, R2, ..., RN). SUMM(R1, R2, ..., RN) = 1

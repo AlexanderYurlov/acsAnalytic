@@ -6,7 +6,6 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Data
@@ -28,15 +27,15 @@ public class InitialData {
      * ACS Data
      */
 
-    /**
-     * Количество уровней зарядки (т)
-     */
-    Integer n;
-
-    /**
-     * The total number of pumps (pump_tot)
-     */
-    Integer pumpTotal;
+//    /**
+//     * Количество уровней зарядки (т)
+//     */
+//    Integer n;
+//
+//    /**
+//     * The total number of pumps (pump_tot)
+//     */
+//    Integer pumpTotal;
 
     /**
      * Numbers of pumps per tier: Pump1, …, PumpN;
@@ -63,7 +62,7 @@ public class InitialData {
     /**
      * типы зарядок автомобилей и их соотношение - R ( сумма = 1)
      */
-    List<VehicleTier> r;
+    List<TierVehicle> r;
 
     /**
      * Walk-in client ratio (RW + RR = 1)
@@ -87,7 +86,7 @@ public class InitialData {
     Integer timeGeneration;
 
     public Tier getTierByIndex(Integer tierIndex) {
-        for (Tier tier: tiers) {
+        for (Tier tier : tiers) {
             if (tier.getIndex().equals(tierIndex)) {
                 return tier;
             }
