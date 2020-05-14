@@ -24,14 +24,14 @@ public class PumpDataGenerationService {
         int id = 1;
 
         for (Tier tier : tiers) {
-            if (pumpMap.get(tier.getIndex()) != null) {
+            if (pumpMap.get(tier.getId()) != null) {
                 List<TierPump> tierPumpList = new ArrayList<>();
-                Integer quantity = pumpMap.get(tier.getIndex());
+                Integer quantity = pumpMap.get(tier.getId());
                 for (int j = 0; j < quantity; j++) {
                     TierPump tierPump = new TierPump(id++, tier);
                     tierPumpList.add(tierPump);
                 }
-                tetierPumpsMap.put(tier.getIndex(), tierPumpList);
+                tetierPumpsMap.put(tier.getId(), tierPumpList);
             }
         }
         return tetierPumpsMap;
@@ -41,19 +41,19 @@ public class PumpDataGenerationService {
         InitialData initialData = InitialData.builder()
                 .tiers(List.of(
                         Tier.builder()
-                                .index(1)
+                                .id(1)
                                 .batteryCapacity(81)
                                 .energyAcceptanceRate(120f)
                                 .maxWaitingTime(120)
                                 .build(),
                         Tier.builder()
-                                .index(2)
+                                .id(2)
                                 .batteryCapacity(20)
                                 .energyAcceptanceRate(6.6f)
                                 .maxWaitingTime(300)
                                 .build(),
                         Tier.builder()
-                                .index(3)
+                                .id(3)
                                 .batteryCapacity(14)
                                 .energyAcceptanceRate(3.3f)
                                 .maxWaitingTime(480)

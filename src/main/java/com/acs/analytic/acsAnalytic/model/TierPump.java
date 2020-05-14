@@ -10,8 +10,10 @@ public class TierPump {
     int id;
 
     /**
-     * Tier's index
+     * Tier
      */
     Tier Tier;
+
+//    Period period;
 
 }

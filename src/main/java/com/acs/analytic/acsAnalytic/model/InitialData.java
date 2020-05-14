@@ -27,16 +27,6 @@ public class InitialData {
      * ACS Data
      */
 
-//    /**
-//     * Количество уровней зарядки (т)
-//     */
-//    Integer n;
-//
-//    /**
-//     * The total number of pumps (pump_tot)
-//     */
-//    Integer pumpTotal;
-
     /**
      * Numbers of pumps per tier: Pump1, …, PumpN;
      */
@@ -87,7 +77,7 @@ public class InitialData {
 
     public Tier getTierByIndex(Integer tierIndex) {
         for (Tier tier : tiers) {
-            if (tier.getIndex().equals(tierIndex)) {
+            if (tier.getId().equals(tierIndex)) {
                 return tier;
             }
         }

@@ -24,7 +24,7 @@ public class Vehicle {
     /**
      * Зарядка используемая по умолчанию
      */
-    Integer tierIndex;
+    Integer tierId;
 
     /**
      * Время запроса на зарядку

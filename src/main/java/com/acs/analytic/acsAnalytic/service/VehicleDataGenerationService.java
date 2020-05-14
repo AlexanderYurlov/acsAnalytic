@@ -42,7 +42,7 @@ public class VehicleDataGenerationService {
         List<Vehicle> vehicles = new ArrayList(initialData.getVehMax());
 
         var rw = 0;
-        Map<Integer, Integer> mapR = initialData.getTiers().stream().collect(Collectors.toMap(Tier::getIndex, x -> 0));
+        Map<Integer, Integer> mapR = initialData.getTiers().stream().collect(Collectors.toMap(Tier::getId, x -> 0));
         System.out.println("mapR = " + mapR);
         for (int i = 0; i < initialData.getVehMax(); i++) {
             var vehicle = new Vehicle();
@@ -54,8 +54,8 @@ public class VehicleDataGenerationService {
             vehicle.setType(vehicleRequestType);
 
             var tier = getTier(mapR, i, initialData);
-            mapR.put(tier.getIndex(), mapR.get(tier.getIndex()) + 1);
-            vehicle.setTierIndex(tier.getIndex());
+            mapR.put(tier.getId(), mapR.get(tier.getId()) + 1);
+            vehicle.setTierId(tier.getId());
 
 //             waiting time is within 20% margin from the average
 //            deadl_t(i,1)=(0.4*rand+0.8)*Tier_Wait_Aver(tier(i,1));
@@ -143,19 +143,19 @@ public class VehicleDataGenerationService {
         InitialData initialData = InitialData.builder()
                 .tiers(List.of(
                         Tier.builder()
-                                .index(1)
+                                .id(1)
                                 .batteryCapacity(81)
                                 .energyAcceptanceRate(120f)
                                 .maxWaitingTime(120)
                                 .build(),
                         Tier.builder()
-                                .index(2)
+                                .id(2)
                                 .batteryCapacity(20)
                                 .energyAcceptanceRate(6.6f)
                                 .maxWaitingTime(300)
                                 .build(),
                         Tier.builder()
-                                .index(3)
+                                .id(3)
                                 .batteryCapacity(14)
                                 .energyAcceptanceRate(3.3f)
                                 .maxWaitingTime(480)
@@ -218,7 +218,7 @@ public class VehicleDataGenerationService {
                 oneLine.append(CSV_SEPARATOR);
                 oneLine.append(vehicle.getType() == null ? "" : vehicle.getType());
                 oneLine.append(CSV_SEPARATOR);
-                oneLine.append(vehicle.getTierIndex() == null ? "" : vehicle.getTierIndex());
+                oneLine.append(vehicle.getTierId() == null ? "" : vehicle.getTierId());
                 oneLine.append(CSV_SEPARATOR);
                 oneLine.append(vehicle.getArrT() == null ? "" : format.format(vehicle.getArrT()));
                 oneLine.append(CSV_SEPARATOR);

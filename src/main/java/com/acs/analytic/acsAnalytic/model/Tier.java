@@ -8,9 +8,9 @@ import lombok.Data;
 public class Tier {
 
     /**
-     * Tier's index
+     * Tier's id
      */
-    Integer index;
+    Integer id;
 
     /**
      * Battery capacity of each tier in kWh
