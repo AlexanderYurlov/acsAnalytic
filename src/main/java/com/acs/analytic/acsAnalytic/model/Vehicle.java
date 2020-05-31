@@ -2,11 +2,17 @@ package com.acs.analytic.acsAnalytic.model;
 
 import java.util.List;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Vehicle {
 
     Integer id;

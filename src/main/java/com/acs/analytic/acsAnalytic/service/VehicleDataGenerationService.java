@@ -43,7 +43,6 @@ public class VehicleDataGenerationService {
 
         var rw = 0;
         Map<Integer, Integer> mapR = initialData.getTiers().stream().collect(Collectors.toMap(Tier::getId, x -> 0));
-        System.out.println("mapR = " + mapR);
         for (int i = 0; i < initialData.getVehMax(); i++) {
             var vehicle = new Vehicle();
 
@@ -74,7 +73,7 @@ public class VehicleDataGenerationService {
             vehicle.setEArrT(generateEArrT());
 
             vehicles.add(vehicle);
-            log.debug("" + vehicle);
+//            log.debug("" + vehicle);
         }
 
         return vehicles;
@@ -95,8 +94,6 @@ public class VehicleDataGenerationService {
     private double generateIa(Float arrivalRate) {
         double x = 1 - random.nextDouble();
         double ia = HOUR * Math.log(x) / (-arrivalRate);
-        System.out.println("x  = " + x);
-        System.out.println("ia = " + ia);
         return ia;
     }
 
