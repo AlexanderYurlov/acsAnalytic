@@ -56,6 +56,10 @@ public class Test {
             parm = new glp_smcp();
             GLPK.glp_init_smcp(parm);
             ret = GLPK.glp_simplex(lp, parm);
+
+            GLPK.glp_print_mip(lp,"11");
+            GLPK.glp_print_ipt(lp,"12");
+            GLPK.glp_print_sol(lp,"13");
             // Retrieve solution
             if (ret == 0) {
                 write_lp_solution(lp);
@@ -90,5 +94,10 @@ public class Test {
             System.out.print(" = ");
             System.out.println(val);
         }
+        System.out.println(GLPK.glp_get_bhead(lp,1));
+        System.out.println(GLPK.glp_get_col_bind(lp,1));
+        System.out.println(GLPK.glp_get_col_bind(lp,2));
+        System.out.println("___");
+
     }
 }

@@ -13,10 +13,10 @@ public class MatrixCreatorHelper {
 
         int length = 5 * k + 3;
         // Create f array
-        int[] f = new int[length];
+        int[] z = new int[length];
         for (int i = 0; i < length; i++) {
             if (i >= 2 * (k + 1) && i < 3 * (k + 1)) {
-                f[i] = 1;
+                z[i] = 1;
             }
         }
 
@@ -196,7 +196,7 @@ public class MatrixCreatorHelper {
             }
             // last string (Z)
             else if (i == height - 1) {
-                a[i] = f;
+                a[i] = z;
                 // b
                 b[i] = 1;
                 // sense
@@ -229,7 +229,7 @@ public class MatrixCreatorHelper {
     }
 
     public static void main(String[] args) {
-        var matrix = create(2, 10d, 11.1d, 12.2d);
+        var matrix = create(3, 10d, 11.1d, 12.2d);
         printMatrix(matrix);
 
     }
