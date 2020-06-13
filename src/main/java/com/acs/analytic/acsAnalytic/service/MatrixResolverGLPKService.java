@@ -159,17 +159,14 @@ public class MatrixResolverGLPKService implements MatrixResolver {
     }
 
     static void write_lp_solution(glp_prob lp) {
-        int i;
-        int n;
-        String name;
-        double val;
-        name = GLPK.glp_get_obj_name(lp);
-        val = GLPK.glp_get_obj_val(lp);
+
+        String name = GLPK.glp_get_obj_name(lp);
+        double val = GLPK.glp_get_obj_val(lp);
         System.out.print(name);
         System.out.print(" = ");
         System.out.println(val);
-        n = GLPK.glp_get_num_cols(lp);
-        for (i = 1; i <= n; i++) {
+        int n = GLPK.glp_get_num_cols(lp);
+        for (int i = 1; i <= n; i++) {
             name = GLPK.glp_get_col_name(lp, i);
             val = GLPK.glp_get_col_prim(lp, i);
             System.out.print(name);
