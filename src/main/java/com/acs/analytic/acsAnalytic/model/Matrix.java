@@ -9,8 +9,10 @@ import com.acs.analytic.acsAnalytic.model.enums.Sense;
 @Builder
 public class Matrix {
 
+    int k;
     int[][] a;
     Sense[] senses;
     double[] b;
+    int[] f;
 
 }

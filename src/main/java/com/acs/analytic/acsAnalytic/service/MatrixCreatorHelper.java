@@ -12,7 +12,16 @@ public class MatrixCreatorHelper {
     public static Matrix create(int k, double chargT, double arrT, double deadlT) {
 
         int length = 5 * k + 3;
+
         // Create f array
+        int[] f = new int[length];
+        for (int i = 0; i < length; i++) {
+            if (i >= (k + 1) && i < 2 * (k + 1)) {
+                f[i] = 1;
+            }
+        }
+
+        // Create z array
         int[] z = new int[length];
         for (int i = 0; i < length; i++) {
             if (i >= 2 * (k + 1) && i < 3 * (k + 1)) {
@@ -203,15 +212,16 @@ public class MatrixCreatorHelper {
                 senses[i] = EQUAL;
             }
         }
-
         return Matrix.builder()
+                .k(k)
                 .a(a)
                 .b(b)
+                .f(f)
                 .senses(senses)
                 .build();
     }
 
-    private static void printMatrix(Matrix matrix) {
+    public static void printMatrix(Matrix matrix) {
 
         int[][] a = matrix.getA();
         for (int i = 0; i < a.length; i++) {
@@ -222,10 +232,6 @@ public class MatrixCreatorHelper {
             System.out.print(matrix.getB()[i]);
             System.out.println();
         }
-
-//            for (int j = 0; j < f.length; j++) {
-//                System.out.print(" [" + f[j] + "]");
-//            }
     }
 
     public static void main(String[] args) {

@@ -98,6 +98,5 @@ public class Test {
         System.out.println(GLPK.glp_get_col_bind(lp,1));
         System.out.println(GLPK.glp_get_col_bind(lp,2));
         System.out.println("___");
-
     }
 }
