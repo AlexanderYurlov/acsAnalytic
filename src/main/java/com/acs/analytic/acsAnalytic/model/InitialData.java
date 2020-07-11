@@ -70,11 +70,6 @@ public class InitialData {
      */
     Integer vehMax;
 
-    /**
-     * Период времени расчёта
-     */
-    Integer timeGeneration;
-
     public Tier getTierByIndex(Integer tierIndex) {
         for (Tier tier : tiers) {
             if (tier.getId().equals(tierIndex)) {

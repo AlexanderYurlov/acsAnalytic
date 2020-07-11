@@ -5,6 +5,6 @@ import com.acs.analytic.acsAnalytic.model.MatrixResult;
 
 public interface MatrixResolver {
 
-    MatrixResult resolve(Matrix matrix);
+    MatrixResult resolve(Matrix matrix, double[] b);
 
 }

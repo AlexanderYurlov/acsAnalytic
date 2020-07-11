@@ -1,4 +1,4 @@
-package com.acs.analytic.acsAnalytic.model;
+package com.acs.analytic.acsAnalytic.model.vehicle;
 
 import java.util.List;
 
@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.acs.analytic.acsAnalytic.model.TierPump;
 import com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType;
 
 @Data
@@ -60,21 +61,22 @@ public class Vehicle {
     /**
      * Промежуточное время окончания зарядки. compl_t. Если автомобиль зарядился = 0
      */
-    Long complT;
+    Double complT;
 
     /**
      * Фактическое время начала зарядки
      */
-    Long actArrT;
+    Double actArrT;
 
     /**
      * Фактическое время окончания зарядки
      */
-    Long actComplT;
+    Double actComplT;
 
     /**
      * Обновляемое время прибытия на станцию
+     *  'res' means 'reset' or 'recalculated
      */
-    Long resArrT;
+    Double resArrT;
 
 }

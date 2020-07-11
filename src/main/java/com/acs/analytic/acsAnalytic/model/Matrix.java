@@ -12,7 +12,6 @@ public class Matrix {
     int k;
     int[][] a;
     Sense[] senses;
-    double[] b;
     int[] f;
 
 }

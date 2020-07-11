@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.acs.analytic.acsAnalytic.model.InitialData;
 import com.acs.analytic.acsAnalytic.model.Tier;
-import com.acs.analytic.acsAnalytic.model.Vehicle;
+import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 import com.acs.analytic.acsAnalytic.model.TierVehicle;
 import com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType;
 
@@ -160,7 +160,7 @@ public class VehicleDataGenerationService {
 
                         )
                 )
-                .vehMax(1000)
+                .vehMax(100)
                 .rw(0.23f)
                 .rr(0.77f)
                 .r(List.of(
