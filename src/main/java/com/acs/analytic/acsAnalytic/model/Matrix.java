@@ -14,4 +14,11 @@ public class Matrix {
     Sense[] senses;
     int[] f;
 
+    public Matrix(int k, int[][] a, Sense[] senses, int[] f) {
+        this.k = k;
+        this.a = a;
+        this.senses = senses;
+        this.f = f;
+    }
+
 }

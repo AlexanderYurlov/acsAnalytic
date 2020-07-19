@@ -8,8 +8,8 @@ import org.gnu.glpk.GLPKConstants;
 import org.gnu.glpk.GlpkException;
 import org.gnu.glpk.SWIGTYPE_p_double;
 import org.gnu.glpk.SWIGTYPE_p_int;
+import org.gnu.glpk.glp_iocp;
 import org.gnu.glpk.glp_prob;
-import org.gnu.glpk.glp_smcp;
 import org.springframework.stereotype.Service;
 
 import com.acs.analytic.acsAnalytic.model.Matrix;
@@ -23,31 +23,32 @@ import static com.acs.analytic.acsAnalytic.service.MatrixCreatorHelper.createB;
 import static com.acs.analytic.acsAnalytic.service.MatrixCreatorHelper.prepareListVehicles;
 import static com.acs.analytic.acsAnalytic.service.MatrixCreatorHelper.prepareVehicle;
 import static com.acs.analytic.acsAnalytic.service.MatrixCreatorHelper.printMatrix;
+import static org.gnu.glpk.GLPKConstants.GLP_ON;
 
 @Service
 public class MatrixResolverGLPKService implements MatrixResolver {
 
-    public static final Integer MAX = 10000;
-    public static final Integer MIN = -10000;
+    public static final Integer MAX = 100000;
+    public static final Integer MIN = -100000;
 
     @Override
     public MatrixResult resolve(Matrix matrix, double[] b) {
         glp_prob lp;
-        glp_smcp parm;
+        glp_iocp parm;
+
+        // Solve model
+        parm = new glp_iocp();
+        GLPK.glp_init_iocp(parm);
+        parm.setPresolve(GLP_ON);
+        // Create task
+        lp = GLPK.glp_create_prob();
+        GLPK.glp_set_prob_name(lp, "K" + matrix.getK());
+
         int k2 = matrix.getK() + 1;
         int nElements = matrix.getA()[0].length;
         int nRows = matrix.getA().length - 2 * k2;
 
-        System.out.println("nElements = " + nElements);
-        System.out.println("nRows = " + nRows);
-
-        SWIGTYPE_p_int ind  = GLPK.new_intArray(nElements);;
-        SWIGTYPE_p_double val = GLPK.new_doubleArray(nElements);;
-        int ret;
         try {
-            // Create task
-            lp = GLPK.glp_create_prob();
-            GLPK.glp_set_prob_name(lp, "matrix k = " + matrix.getK());
 
             // Define columns
             int columns = matrix.getA()[0].length;
@@ -86,18 +87,17 @@ public class MatrixResolverGLPKService implements MatrixResolver {
                 if (i >= k2 && i < 3 * k2) {
                     continue;
                 }
+                SWIGTYPE_p_int ind = GLPK.new_intArray(nElements);
+                SWIGTYPE_p_double val = GLPK.new_doubleArray(nElements);
                 rowI++;
                 String name = "c" + rowI;
                 GLPK.glp_set_row_name(lp, rowI, name);
 
                 if (matrix.getSenses()[i] == MORE_OR_EQUAL) {
-                    System.out.println("1 " + i);
                     GLPK.glp_set_row_bnds(lp, rowI, GLPKConstants.GLP_DB, b[i], MAX);
                 } else if (matrix.getSenses()[i] == LESS_OR_EQUAL) {
-                    System.out.println("2 " + i);
                     GLPK.glp_set_row_bnds(lp, rowI, GLPKConstants.GLP_DB, MIN, b[i]);
                 } else {
-                    System.out.println("3 " + i);
                     GLPK.glp_set_row_bnds(lp, rowI, GLPKConstants.GLP_FX, b[i], b[i]);
                 }
 
@@ -109,7 +109,7 @@ public class MatrixResolverGLPKService implements MatrixResolver {
                     GLPK.intArray_setitem(ind, index, index);
                 }
 
-                for (int j = 0; j < aRow.length; j++) {
+                for (int j = 0; j < nElements; j++) {
                     int index = j + 1;
                     GLPK.doubleArray_setitem(val, index, aRow[j]);
                 }
@@ -119,26 +119,29 @@ public class MatrixResolverGLPKService implements MatrixResolver {
             // Define objective
             GLPK.glp_set_obj_name(lp, "f");
             GLPK.glp_set_obj_dir(lp, GLPKConstants.GLP_MIN);
-//            rowI = 0;
-            for (int i = k2; i < 2 * k2; i++) {
-                rowI = i + 1;
-                GLPK.glp_set_obj_coef(lp, rowI, 1);
+            for (int i = 0; i < 2 * k2; i++) {
+                int index = i + 1;
+                if (i >= k2 && i < 2 * k2) {
+                    GLPK.glp_set_obj_coef(lp, index, 1);
+                } else {
+                    GLPK.glp_set_obj_coef(lp, index, 0);
+
+                }
             }
-            // Solve model
-            parm = new glp_smcp();
-            GLPK.glp_init_smcp(parm);
-            ret = GLPK.glp_simplex(lp, parm);
 
             GLPK.glp_print_mip(lp, "glp_print_mip");
             GLPK.glp_print_ipt(lp, "glp_print_ipt");
             GLPK.glp_print_sol(lp, "glp_print_sol");
 
+            int err = GLPK.glp_intopt(lp, parm);
+            System.out.println("err = " + err);
             // Retrieve solution
-            if (ret == 0) {
+//            if (err == 0) {
                 write_lp_solution(lp);
-            } else {
-                System.out.println("The problem could not be solved");
-            }
+//            } else {
+//                System.out.println("The problem could not be solved. Err code = " + err);
+//                return MatrixResult.isNotResolved();
+//            }
             // Free memory
             GLPK.glp_delete_prob(lp);
         } catch (
@@ -148,33 +151,33 @@ public class MatrixResolverGLPKService implements MatrixResolver {
         return null;
     }
 
-    public static void main(String[] args) {
-
-        Vehicle veh = prepareVehicle(14.23d, List.of(151.51d), 12.59d, 249.11);
-        List<Vehicle> vehicles = prepareListVehicles();
-        int tierId = 0;
-        var b = createB(veh, vehicles, tierId);
-        var matrix = create(3);
-        printMatrix(matrix, b);
-        new MatrixResolverGLPKService().resolve(matrix, b);
-
-    }
-
     static void write_lp_solution(glp_prob lp) {
 
         String name = GLPK.glp_get_obj_name(lp);
         double val = GLPK.glp_get_obj_val(lp);
-        System.out.print(name);
-        System.out.print(" = ");
-        System.out.println(val);
+//        System.out.print(name);
+//        System.out.print(" = ");
+//        System.out.println(val);
         int n = GLPK.glp_get_num_cols(lp);
         for (int i = 1; i <= n; i++) {
             name = GLPK.glp_get_col_name(lp, i);
-            val = GLPK.glp_get_col_prim(lp, i);
+            val = GLPK.glp_mip_col_val(lp, i);
             System.out.print(name);
             System.out.print(" = ");
             System.out.println(val);
         }
+    }
+
+    public static void main(String[] args) {
+
+        Vehicle veh = prepareVehicle(14.23d, List.of(15.51d), 12.59d, 249.11);
+        List<Vehicle> vehicles = prepareListVehicles();
+        int tierId = 0;
+        var b = createB(veh, vehicles, tierId);
+        var matrix = create(2);
+        printMatrix(matrix, b);
+        new MatrixResolverGLPKService().resolve(matrix, b);
+
     }
 
 }

@@ -12,8 +12,8 @@ import static com.acs.analytic.acsAnalytic.model.enums.Sense.MORE_OR_EQUAL;
 
 public class MatrixCreatorHelper {
 
-    public static final int NEGATIVE_INFINITY_INT = -10000;
-    public static final double NEGATIVE_INFINITY = -10000;
+    public static final int NEGATIVE_INFINITY_INT = -100000;
+    public static final double NEGATIVE_INFINITY = -100000;
 
     public static double[] createB(Vehicle veh, List<Vehicle> vehicles, int tierId) {
 
@@ -272,9 +272,9 @@ public class MatrixCreatorHelper {
 
     public static List<Vehicle> prepareListVehicles() {
         return List.of(
-                prepareVehicle(0d, List.of(34.7d), 25.84d, 113.51),
-                prepareVehicle(13.05d, List.of(150.6d), 23.84d, 241.55),
-                prepareVehicle(13.17d, List.of(208.2d), 19.37d, 391.43)
+                prepareVehicle(0d, List.of(34.7d), 25.84d, 413.51),
+                prepareVehicle(13.05d, List.of(15.6d), 23.84d, 441.55)
+//                prepareVehicle(13.17d, List.of(208.2d), 19.37d, 491.43)
         );
     }
 
