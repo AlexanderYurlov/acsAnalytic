@@ -227,7 +227,7 @@ public class VehicleDataGenerationService {
                 oneLine.append(CSV_SEPARATOR);
                 oneLine.append(vehicle.getPump() == null ? "" : vehicle.getPump());
                 oneLine.append(CSV_SEPARATOR);
-                oneLine.append(vehicle.getComplT() == null ? "" : format.format(vehicle.getComplT()));
+                oneLine.append(vehicle.getResComplT() == null ? "" : format.format(vehicle.getResComplT()));
                 oneLine.append(CSV_SEPARATOR);
                 oneLine.append(vehicle.getActArrT() == null ? "" : format.format(vehicle.getActArrT()));
                 oneLine.append(CSV_SEPARATOR);

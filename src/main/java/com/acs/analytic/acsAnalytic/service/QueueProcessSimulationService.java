@@ -9,20 +9,20 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import com.acs.analytic.acsAnalytic.model.InitialData;
-import com.acs.analytic.acsAnalytic.model.Matrix;
-import com.acs.analytic.acsAnalytic.model.MatrixResult;
+import com.acs.analytic.acsAnalytic.model.ReservationResult;
 import com.acs.analytic.acsAnalytic.model.Tier;
 import com.acs.analytic.acsAnalytic.model.TierPump;
 import com.acs.analytic.acsAnalytic.model.TierVehicle;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
+import com.acs.analytic.acsAnalytic.service.reservation.ReserveFinder;
 
 @Service
 public class QueueProcessSimulationService {
 
-    private final MatrixResolver matrixResolver;
+    private final ReserveFinder reserveFinder;
 
-    QueueProcessSimulationService(MatrixResolver matrixResolver) {
-        this.matrixResolver = matrixResolver;
+    QueueProcessSimulationService(ReserveFinder reserveFinder) {
+        this.reserveFinder = reserveFinder;
     }
 
     public List<Vehicle> simulate(List<Vehicle> vehicles, Map<Integer, List<TierPump>> tierPumpsMap) {
@@ -35,8 +35,8 @@ public class QueueProcessSimulationService {
 
             var vehicle = vehicles.get(num);
             int tierId = vehicle.getTierId();
-            var inProgress = inProgressVehiclesMap.get(tierId);
             var processed = processedVehiclesMap.get(tierId);
+            var inProgress = inProgressVehiclesMap.get(tierId);
 
             boolean isReserved = tryReserve(vehicle, inProgress, processed, tierId);
         }
@@ -72,8 +72,8 @@ public class QueueProcessSimulationService {
                     i.remove();
                 } else {
                     veh.setResArrT(resArrT);
-                    var complT = veh.getComplT() - deltaTime;
-                    veh.setActComplT(complT);
+                    var complT = veh.getResComplT() - deltaTime;
+                    veh.setResComplT(complT);
                 }
             }
         }
@@ -94,12 +94,12 @@ public class QueueProcessSimulationService {
     private boolean tryNormReserve(Vehicle veh, Map<Integer, List<Vehicle>> inProgress, int tierId) {
         for (Integer pumpId : inProgress.keySet()) {
             var vehicles = inProgress.get(pumpId);
-            double [] b = MatrixCreatorHelper.createB(veh, vehicles, tierId);
-            var k = vehicles.size();
-            Matrix matrix = MatrixCreatorHelper.create(k);
-            MatrixResult result = matrixResolver.resolve(matrix, b);
+            ReservationResult result = reserveFinder.tryToReserve(veh, vehicles, tierId);
+            if (result.isReserved()) {
+                return true;
+            }
         }
-        return true;
+        return false;
     }
 
     private void reserve(Vehicle veh, List<Vehicle> listVehicles, int tierId) {
@@ -125,7 +125,12 @@ public class QueueProcessSimulationService {
     }
 
     public static void main(String[] args) {
-        var queueProcessSimulationService = new QueueProcessSimulationService(new MatrixResolverGLPKService());
+        var queueProcessSimulationService = new QueueProcessSimulationService(new ReserveFinder() {
+            @Override
+            public ReservationResult tryToReserve(Vehicle veh, List<Vehicle> vehicles, int tierId) {
+                return null;
+            }
+        });
 
         InitialData initialData = InitialData.builder()
                 .tiers(List.of(

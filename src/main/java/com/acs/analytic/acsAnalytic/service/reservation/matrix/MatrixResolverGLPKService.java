@@ -1,5 +1,6 @@
-package com.acs.analytic.acsAnalytic.service;
+package com.acs.analytic.acsAnalytic.service.reservation.matrix;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,16 +14,16 @@ import org.gnu.glpk.glp_prob;
 import org.springframework.stereotype.Service;
 
 import com.acs.analytic.acsAnalytic.model.Matrix;
-import com.acs.analytic.acsAnalytic.model.MatrixResult;
+import com.acs.analytic.acsAnalytic.model.ReservationResult;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 
 import static com.acs.analytic.acsAnalytic.model.enums.Sense.LESS_OR_EQUAL;
 import static com.acs.analytic.acsAnalytic.model.enums.Sense.MORE_OR_EQUAL;
-import static com.acs.analytic.acsAnalytic.service.MatrixCreatorHelper.create;
-import static com.acs.analytic.acsAnalytic.service.MatrixCreatorHelper.createB;
-import static com.acs.analytic.acsAnalytic.service.MatrixCreatorHelper.prepareListVehicles;
-import static com.acs.analytic.acsAnalytic.service.MatrixCreatorHelper.prepareVehicle;
-import static com.acs.analytic.acsAnalytic.service.MatrixCreatorHelper.printMatrix;
+import static com.acs.analytic.acsAnalytic.service.reservation.matrix.MatrixCreatorHelper.create;
+import static com.acs.analytic.acsAnalytic.service.reservation.matrix.MatrixCreatorHelper.createB;
+import static com.acs.analytic.acsAnalytic.service.reservation.matrix.MatrixCreatorHelper.prepareListVehicles;
+import static com.acs.analytic.acsAnalytic.service.reservation.matrix.MatrixCreatorHelper.prepareVehicle;
+import static com.acs.analytic.acsAnalytic.service.reservation.matrix.MatrixCreatorHelper.printMatrix;
 import static org.gnu.glpk.GLPKConstants.GLP_ON;
 
 @Service
@@ -32,7 +33,7 @@ public class MatrixResolverGLPKService implements MatrixResolver {
     public static final Integer MIN = -100000;
 
     @Override
-    public MatrixResult resolve(Matrix matrix, double[] b) {
+    public ReservationResult resolve(Matrix matrix, double[] b) {
         glp_prob lp;
         glp_iocp parm;
 
@@ -81,14 +82,18 @@ public class MatrixResolverGLPKService implements MatrixResolver {
 
             GLPK.glp_add_rows(lp, nRows);
 
-            // nRows: 3 * k2 - nRows
+            List<Integer> ia = new ArrayList<>();
+            List<Integer> ja = new ArrayList<>();
+            List<Double> ar = new ArrayList<>();
+
             int rowI = 0;
+            // nRows: 3 * k2 - nRows
             for (int i = 0; i < matrix.getA().length; i++) {
                 if (i >= k2 && i < 3 * k2) {
                     continue;
                 }
-                SWIGTYPE_p_int ind = GLPK.new_intArray(nElements);
-                SWIGTYPE_p_double val = GLPK.new_doubleArray(nElements);
+//                SWIGTYPE_p_int ind = GLPK.new_intArray(nElements);
+//                SWIGTYPE_p_double val = GLPK.new_doubleArray(nElements);
                 rowI++;
                 String name = "c" + rowI;
                 GLPK.glp_set_row_name(lp, rowI, name);
@@ -105,16 +110,29 @@ public class MatrixResolverGLPKService implements MatrixResolver {
                 System.out.println("name = " + name + ", aRow = " + Arrays.toString(aRow));
 
                 for (int j = 0; j < aRow.length; j++) {
-                    int index = j + 1;
-                    GLPK.intArray_setitem(ind, index, index);
+                    if (aRow[j] != 0) {
+                        ia.add(rowI);
+                        ja.add(j + 1);
+                        ar.add((double) aRow[j]);
+                    }
                 }
 
-                for (int j = 0; j < nElements; j++) {
-                    int index = j + 1;
-                    GLPK.doubleArray_setitem(val, index, aRow[j]);
-                }
-                GLPK.glp_set_mat_row(lp, rowI, columns, ind, val);
+//                for (int j = 0; j < aRow.length; j++) {
+//                    int index = j + 1;
+//                    GLPK.intArray_setitem(ind, index, index);
+//                }
+//
+//                for (int j = 0; j < nElements; j++) {
+//                    int index = j + 1;
+//                    GLPK.doubleArray_setitem(val, index, aRow[j]);
+//                }
+//                GLPK.glp_set_mat_row(lp, rowI, columns, ind, val);
             }
+            SWIGTYPE_p_int arrayIa = toIntArray(ia);
+            SWIGTYPE_p_int arrayJa = toIntArray(ja);
+            SWIGTYPE_p_double arrayAr = toDoubleArray(ar);
+
+            GLPK.glp_load_matrix(lp, ia.size(), arrayIa, arrayJa, arrayAr);
 
             // Define objective
             GLPK.glp_set_obj_name(lp, "f");
@@ -123,10 +141,11 @@ public class MatrixResolverGLPKService implements MatrixResolver {
                 int index = i + 1;
                 if (i >= k2 && i < 2 * k2) {
                     GLPK.glp_set_obj_coef(lp, index, 1);
-                } else {
-                    GLPK.glp_set_obj_coef(lp, index, 0);
-
                 }
+//                else {
+//                    GLPK.glp_set_obj_coef(lp, index, 0);
+//                    System.out.println(0);
+//                }
             }
 
             GLPK.glp_print_mip(lp, "glp_print_mip");
@@ -137,7 +156,7 @@ public class MatrixResolverGLPKService implements MatrixResolver {
             System.out.println("err = " + err);
             // Retrieve solution
 //            if (err == 0) {
-                write_lp_solution(lp);
+            write_lp_solution(lp);
 //            } else {
 //                System.out.println("The problem could not be solved. Err code = " + err);
 //                return MatrixResult.isNotResolved();
@@ -148,36 +167,54 @@ public class MatrixResolverGLPKService implements MatrixResolver {
                 GlpkException ex) {
             ex.printStackTrace();
         }
-        return null;
+        return new ReservationResult();
+    }
+
+    private SWIGTYPE_p_int toIntArray(List<Integer> list) {
+        int arrSize = list.size();
+        SWIGTYPE_p_int array = GLPK.new_intArray(arrSize);
+        for (int i = 0; i < arrSize; i++) {
+            GLPK.intArray_setitem(array, i + 1, list.get(i));
+        }
+        return array;
+    }
+
+    private SWIGTYPE_p_double toDoubleArray(List<Double> list) {
+        int arrSize = list.size();
+        SWIGTYPE_p_double array = GLPK.new_doubleArray(arrSize);
+        for (int i = 0; i < arrSize; i++) {
+            GLPK.doubleArray_setitem(array, i + 1, list.get(i));
+        }
+        return array;
     }
 
     static void write_lp_solution(glp_prob lp) {
 
-        String name = GLPK.glp_get_obj_name(lp);
-        double val = GLPK.glp_get_obj_val(lp);
+//        String name = GLPK.glp_get_obj_name(lp);
+//        double val = GLPK.glp_get_obj_val(lp);
 //        System.out.print(name);
 //        System.out.print(" = ");
 //        System.out.println(val);
         int n = GLPK.glp_get_num_cols(lp);
         for (int i = 1; i <= n; i++) {
-            name = GLPK.glp_get_col_name(lp, i);
-            val = GLPK.glp_mip_col_val(lp, i);
+            String name = GLPK.glp_get_col_name(lp, i);
+            double val = GLPK.glp_mip_col_val(lp, i);
             System.out.print(name);
             System.out.print(" = ");
             System.out.println(val);
         }
     }
 
-    public static void main(String[] args) {
-
-        Vehicle veh = prepareVehicle(14.23d, List.of(15.51d), 12.59d, 249.11);
-        List<Vehicle> vehicles = prepareListVehicles();
-        int tierId = 0;
-        var b = createB(veh, vehicles, tierId);
-        var matrix = create(2);
-        printMatrix(matrix, b);
-        new MatrixResolverGLPKService().resolve(matrix, b);
-
-    }
+//    public static void main(String[] args) {
+//
+//        Vehicle veh = prepareVehicle(14.23d, List.of(151.51d), 12.59d, 249.11);
+//        List<Vehicle> vehicles = prepareListVehicles();
+//        int tierId = 0;
+//        var b = createB(veh, vehicles, tierId);
+//        var matrix = create(2);
+//        printMatrix(matrix, b);
+//        MatrixResolver matrixResolver = new MatrixResolverGLPKService();
+//        matrixResolver.resolve(matrix, b);
+//    }
 
 }
