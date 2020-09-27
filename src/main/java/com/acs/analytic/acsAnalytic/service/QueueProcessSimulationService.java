@@ -15,9 +15,14 @@ import com.acs.analytic.acsAnalytic.model.TierPump;
 import com.acs.analytic.acsAnalytic.model.TierVehicle;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 import com.acs.analytic.acsAnalytic.service.reservation.ReserveFinder;
+import com.acs.analytic.acsAnalytic.service.reservation.SimpleReserveFinder;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class QueueProcessSimulationService {
+
+    public final ObjectMapper om = new ObjectMapper();
 
     private final ReserveFinder reserveFinder;
 
@@ -25,76 +30,171 @@ public class QueueProcessSimulationService {
         this.reserveFinder = reserveFinder;
     }
 
+    /**
+     * @param vehicles - все сгенерированные авто
+     * @param tierPumpsMap - конфигурация уровне зарядки и пампов на зарядной станции
+     *
+     * @return
+     */
     public List<Vehicle> simulate(List<Vehicle> vehicles, Map<Integer, List<TierPump>> tierPumpsMap) {
 
+        // авто заряженные
         Map<Integer, Map<Integer, List<Vehicle>>> processedVehiclesMap = prepareVehiclesMap(tierPumpsMap);
+
+        // авто стоящие на зарядке в данный момент
+        Map<Integer, Map<Integer, Vehicle>> chargingVehiclesMap = new HashMap<>();
+
+        // авто поставленные в очередь
         Map<Integer, Map<Integer, List<Vehicle>>> inProgressVehiclesMap = prepareVehiclesMap(tierPumpsMap);
-        List<Integer> rejectedVehicles = new ArrayList<>();
+
+        // Отказано в зарядке
+        List<Vehicle> rejectedVehicles = new ArrayList<>();
 
         for (int num = 0; num < vehicles.size(); num++) {
 
             var vehicle = vehicles.get(num);
-            int tierId = vehicle.getTierId();
-            var processed = processedVehiclesMap.get(tierId);
-            var inProgress = inProgressVehiclesMap.get(tierId);
+            arrange(vehicle, inProgressVehiclesMap, chargingVehiclesMap, processedVehiclesMap);
 
-            boolean isReserved = tryReserve(vehicle, inProgress, processed, tierId);
+            // TierId в List начинается с 0; поэтому -1
+            int tierId = vehicle.getTierId();
+            var inProgress = inProgressVehiclesMap.get(tierId);
+            var chargingVeh = chargingVehiclesMap.get(tierId);
+
+            boolean result = tryReserve(vehicle, inProgress, chargingVeh, tierId);
+            if (!result) {
+                rejectedVehicles.add(vehicle);
+            }
         }
+
+        printResult(rejectedVehicles, processedVehiclesMap, inProgressVehiclesMap, vehicles);
         return vehicles;
     }
 
+    /**
+     * Попытка поставить авто в резерв
+     * @param vehicle - авто, которое пытаемся поставить в резерв
+     * @param inProgress - список авто, которые поставлены в резерв
+     * @param chargingVeh - зарежаемые авто на данный момент времени
+     * @param tierId - уровень
+     * @return результат попытки
+     */
     private boolean tryReserve(Vehicle vehicle,
                                Map<Integer, List<Vehicle>> inProgress,
-                               Map<Integer, List<Vehicle>> charged,
+                               Map<Integer, Vehicle> chargingVeh,
                                int tierId) {
 
-        arrange(vehicle, inProgress, charged);
-        boolean isReserved = tryFastReserve(vehicle, inProgress, tierId);
-        if (isReserved){
+        boolean isReserved = tryFastReserve(vehicle, inProgress, chargingVeh, tierId);
+        if (isReserved) {
             return true;
         }
-
-        return tryNormReserve(vehicle, inProgress, tierId);
+        return tryNormReserve(vehicle, inProgress, chargingVeh, tierId);
     }
 
-    private void arrange(Vehicle vehicle, Map<Integer, List<Vehicle>> inProgress, Map<Integer, List<Vehicle>> charged) {
-
+    /**
+     * Обновляем переменные с учётом хода времени.
+     * Переносим авто перешедшие в статус зарядки из inProgressVehiclesMap в processedVehiclesMap.
+     */
+    private void arrange(Vehicle vehicle,
+                         Map<Integer, Map<Integer, List<Vehicle>>> inProgressVehiclesMap,
+                         Map<Integer, Map<Integer, Vehicle>> chargingVehiclesMap,
+                         Map<Integer, Map<Integer, List<Vehicle>>> processedVehiclesMap) {
+        vehicle.setResEarliestArrT(vehicle.getEarliestArrT());
+        vehicle.setResDeadlT(vehicle.getDeadlT());
         var deltaTime = vehicle.getArrT();
-
-        for (Integer pumpId : inProgress.keySet()) {
-            List<Vehicle> vehicles = inProgress.get(pumpId);
-            Iterator<Vehicle> i = vehicles.iterator();
-            while (i.hasNext()) {
-                var veh = i.next();
-                var resArrT = veh.getArrT() - deltaTime;
-                if (resArrT <= 0) {
-                    charged.get(pumpId).add(veh);
-                    i.remove();
-                } else {
-                    veh.setResArrT(resArrT);
-                    var complT = veh.getResComplT() - deltaTime;
-                    veh.setResComplT(complT);
+        for (Integer tierId : inProgressVehiclesMap.keySet()) {
+            Map<Integer, List<Vehicle>> inProgress = inProgressVehiclesMap.get(tierId);
+            for (Integer pumpId : inProgress.keySet()) {
+                List<Vehicle> vehicles = inProgress.get(pumpId);
+                Iterator<Vehicle> i = vehicles.iterator();
+                checkCharging(chargingVehiclesMap, tierId, pumpId, deltaTime, processedVehiclesMap);
+                while (i.hasNext()) {
+                    var veh = i.next();
+                    resetTime(veh, deltaTime);
+                    if (veh.getResStartChargeT() <= 0) {
+                        if (veh.getResComplT() <= 0) {
+                            var charged = processedVehiclesMap.get(tierId);
+                            charged.get(pumpId).add(veh);
+                        } else {
+                            var charging = chargingVehiclesMap.get(tierId);
+                            charging.put(pumpId, veh);
+                        }
+                        i.remove();
+                    }
                 }
             }
         }
     }
 
-    private boolean tryFastReserve(Vehicle vehicle, Map<Integer, List<Vehicle>> inProgress, int tierId) {
+    /**
+     * Обновляем время для авто
+     * @param veh - авто для которого обновляем
+     * @param deltaTime - разница, на которую обновляем
+     */
+    private void resetTime(Vehicle veh, Double deltaTime) {
+        var resEarliestArrT = veh.getResEarliestArrT() - deltaTime;
+        var resDeadlT = veh.getDeadlT() - deltaTime;
+        var resStartChargeT = veh.getResStartChargeT() - deltaTime;
+        var resComplT = veh.getResComplT() - deltaTime;
+        veh.setResEarliestArrT(resEarliestArrT);
+        veh.setResDeadlT(resDeadlT);
+        veh.setResStartChargeT(resStartChargeT);
+        veh.setResComplT(resComplT);
+    }
+
+    /**
+     * Проверка зарядилось ди авто
+     * @param chargingVehiclesMap
+     * @param tierId
+     * @param pumpId
+     * @param deltaTime
+     * @param processedVehiclesMap
+     */
+    private void checkCharging(Map<Integer, Map<Integer, Vehicle>> chargingVehiclesMap, Integer tierId, Integer pumpId, Double deltaTime,
+                               Map<Integer, Map<Integer, List<Vehicle>>> processedVehiclesMap) {
+        if (!chargingVehiclesMap.containsKey(tierId)) {
+            chargingVehiclesMap.put(tierId, new HashMap<>());
+        }
+        var charging = chargingVehiclesMap.get(tierId);
+
+        if (charging.containsKey(pumpId)) {
+            var chargingVeh = charging.get(pumpId);
+            var resComplT = chargingVeh.getResComplT() - deltaTime;
+            chargingVeh.setResComplT(resComplT);
+            if (resComplT <= 0) {
+                var charged = processedVehiclesMap.get(tierId);
+                charged.get(pumpId).add(chargingVeh);
+                charging.remove(pumpId);
+            }
+        }
+    }
+
+    private boolean tryFastReserve(Vehicle vehicle,
+                                   Map<Integer, List<Vehicle>> inProgress,
+                                   Map<Integer, Vehicle> chargingVeh,
+                                   int tierId) {
 
         for (Integer pumpId : inProgress.keySet()) {
             var listVehicles = inProgress.get(pumpId);
             if (listVehicles.isEmpty()) {
-                reserve(vehicle, listVehicles, tierId);
-                return true;
+                var remChargeTime = chargingVeh.get(pumpId) != null ? chargingVeh.get(pumpId).getResComplT() : 0;
+                boolean isReserved = reserve(vehicle, listVehicles, tierId, remChargeTime);
+                if (isReserved) {
+                    return true;
+                }
             }
         }
         return false;
     }
 
-    private boolean tryNormReserve(Vehicle veh, Map<Integer, List<Vehicle>> inProgress, int tierId) {
+    private boolean tryNormReserve(Vehicle veh, Map<Integer, List<Vehicle>> inProgress, Map<Integer, Vehicle> chargingVeh, int tierId) {
+        veh.setResEarliestArrT(veh.getEarliestArrT());
+        veh.setResDeadlT(veh.getDeadlT());
+
         for (Integer pumpId : inProgress.keySet()) {
             var vehicles = inProgress.get(pumpId);
-            ReservationResult result = reserveFinder.tryToReserve(veh, vehicles, tierId);
+            var charging = chargingVeh.get(pumpId);
+            var remCharge = charging != null ? charging.getResComplT() : 0;
+            ReservationResult result = reserveFinder.tryToReserve(veh, vehicles, remCharge, tierId);
             if (result.isReserved()) {
                 return true;
             }
@@ -102,13 +202,22 @@ public class QueueProcessSimulationService {
         return false;
     }
 
-    private void reserve(Vehicle veh, List<Vehicle> listVehicles, int tierId) {
-        var actArrTime = veh.getEArrT();
-        var chargeTime = veh.getChargT().get(tierId);
+    private boolean reserve(Vehicle veh, List<Vehicle> listVehicles, int tierId, double remChargeTime) {
+        Double actArrTime;
+        if (veh.getEarliestArrT() >= remChargeTime) {
+            actArrTime = veh.getEarliestArrT();
+        } else {
+            actArrTime = remChargeTime;
+        }
+        var chargeTime = veh.getChargT().get(tierId - 1);
         var actComplTime = actArrTime + chargeTime;
-        veh.setActArrT(actArrTime);
-        veh.setActComplT(actComplTime);
-        listVehicles.add(veh);
+        if (actComplTime <= veh.getDeadlT()) {
+            veh.setResStartChargeT(actArrTime);
+            veh.setResComplT(actComplTime);
+            listVehicles.add(veh);
+            return true;
+        }
+        return false;
     }
 
     private Map<Integer, Map<Integer, List<Vehicle>>> prepareVehiclesMap(Map<Integer, List<TierPump>> tierPumpsMap) {
@@ -124,13 +233,42 @@ public class QueueProcessSimulationService {
         return vehiclesMap;
     }
 
-    public static void main(String[] args) {
-        var queueProcessSimulationService = new QueueProcessSimulationService(new ReserveFinder() {
-            @Override
-            public ReservationResult tryToReserve(Vehicle veh, List<Vehicle> vehicles, int tierId) {
-                return null;
+    private void printResult(List<Vehicle> rejectedVehicles, Map<Integer, Map<Integer, List<Vehicle>>> processedVehiclesMap, Map<Integer, Map<Integer, List<Vehicle>>> inProgressVehiclesMap, List<Vehicle> vehicles) {
+        for (Integer tier : processedVehiclesMap.keySet()){
+            var map = processedVehiclesMap.get(tier);
+            System.out.println("tier: " + tier);
+            for (Integer i: map.keySet()) {
+                System.out.println("pump: " + i +"  size: " + map.get(i).size());
             }
-        });
+        }
+        try {
+            System.out.println("Rejected: ");
+            System.out.println(om.writeValueAsString(rejectedVehicles));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+//        try {
+//            System.out.println("processed: ");
+//            System.out.println(om.writeValueAsString(processedVehiclesMap));
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
+//        try {
+//            System.out.println("in progress: ");
+//            System.out.println(om.writeValueAsString(inProgressVehiclesMap));
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
+//        try {
+//            System.out.println("all: ");
+//            System.out.println(om.writeValueAsString(vehicles));
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
+    }
+
+    public static void main(String[] args) {
+        var queueProcessSimulationService = new QueueProcessSimulationService(new SimpleReserveFinder());
 
         InitialData initialData = InitialData.builder()
                 .tiers(List.of(
@@ -177,7 +315,7 @@ public class QueueProcessSimulationService {
 //                .pumpTotal(3)
                 .pumpMap(Map.of(1, 3, 2, 7, 3, 10))
 //                .sharablePumps()
-                .arrivalRate(12f)
+                .arrivalRate(1200f)
 //                .timeGeneration()
 //                .n(11)
                 .build();

@@ -13,8 +13,13 @@ import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 @NoArgsConstructor
 public class ReservationResult {
 
+    Integer pumpId;
+
     boolean isReserved;
 
     List<Vehicle> combination;
 
+    public ReservationResult(boolean reserveStatus) {
+        isReserved = reserveStatus;
+    }
 }

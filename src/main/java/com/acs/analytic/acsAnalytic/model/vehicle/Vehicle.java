@@ -16,6 +16,12 @@ import com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType;
 @AllArgsConstructor
 public class Vehicle {
 
+    /**
+     * actComplT = actArrT + chargT
+     * actArrT >= arrT + eArrT
+     * actComplT <= deadlT
+     */
+
     Integer id;
 
     /**
@@ -44,14 +50,25 @@ public class Vehicle {
     List<Double> chargT;
 
     /**
-     * нижняя граница предпологаемого прибытия на станцию
+     * Нижняя граница предпологаемого прибытия на станцию
      */
-    Double eArrT;
+    Double earliestArrT;
 
     /**
-     * Верхняя граница. Время окончания зарядки
+     * Обновляемое время прибытия на станцию (нижняя граница)
+     *  'res' means 'reset' or 'recalculated
+     */
+    Double resEarliestArrT;
+
+    /**
+     * Верхняя граница времени окончания зарядки
      */
     Double deadlT;
+
+    /**
+     * Обновлённая верхняя граница времени окончания зарядки
+     */
+    Double resDeadlT;
 
     /**
      * Используемаый зарядник(pump)
@@ -59,14 +76,14 @@ public class Vehicle {
     TierPump pump;
 
     /**
-     * Промежуточное время окончания зарядки. compl_t. Если автомобиль зарядился = 0
-     */
-    Double resComplT;
-
-    /**
      * Фактическое время начала зарядки
      */
-    Double actArrT;
+    Double actStartChargeT;
+
+    /**
+     * Обновлённое время начала зарядки
+     */
+    Double resStartChargeT;
 
     /**
      * Фактическое время окончания зарядки
@@ -74,9 +91,8 @@ public class Vehicle {
     Double actComplT;
 
     /**
-     * Обновляемое время прибытия на станцию
-     *  'res' means 'reset' or 'recalculated
+     * Обновлённое время окончания зарядки. compl_t. Если автомобиль зарядился = 0
      */
-    Double resArrT;
+    Double resComplT;
 
 }

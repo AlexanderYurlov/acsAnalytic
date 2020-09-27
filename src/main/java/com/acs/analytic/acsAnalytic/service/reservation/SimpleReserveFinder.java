@@ -12,46 +12,75 @@ import static com.acs.analytic.acsAnalytic.service.reservation.matrix.MatrixCrea
 
 public class SimpleReserveFinder implements ReserveFinder {
 
+    /**
+     * 1. Перебор всех комбинаций.
+     * 2. Поочерёдно для каждой комбинации пытаемся все авто уместить в очередь.
+     *
+     * @param veh - автомобиль, который пытаемся поставить в очередь.
+     * @param vehicles - автомобили, которые уже стоят в очереди.
+     * @param remChargeTime - время, которое остаётся до оканчания зарядки автомобиля, зарежаемого в данный момент.
+     * @param tierId - уровень, определяющий мощность и время зарядки
+     *
+     * @return результат true/false и комбинация
+     */
     @Override
-    public ReservationResult tryToReserve(Vehicle veh, List<Vehicle> vehicles, int tierId) {
+    public ReservationResult tryToReserve(Vehicle veh, List<Vehicle> vehicles, double remChargeTime, int tierId) {
         List<List<Vehicle>> allCombination = getAllCombination(veh, vehicles);
         System.out.println("allCombination size = " + allCombination.size());
 
         for (List<Vehicle> combination : allCombination) {
-            ReservationResult result = tryToReserve(combination, tierId);
+            ReservationResult result = tryToReserve(combination, remChargeTime, tierId);
             if (result.isReserved()) {
                 return result;
             }
         }
-        return new ReservationResult(false, null);
+        return new ReservationResult(null, false, null);
     }
 
-    private static ReservationResult tryToReserve(List<Vehicle> combination, int tierId) {
-        double currTime = 0d;
+    /**
+     * Попытка поставить в резерв комбинацию.
+     *
+     * @param combination - входная комбинация
+     * @param remChargeTime - время, которое остаётся до оканчания зарядки автомобиля, зарежаемого в данный момент.
+     * @param tierId - уровень, определяющий мощность и время зарядки
+     *
+     * @return результат попытки.
+     */
+    private static ReservationResult tryToReserve(List<Vehicle> combination, double remChargeTime, int tierId) {
+        double currTime = remChargeTime;
         for (Vehicle v : combination) {
-            Double eArrT = v.getEArrT();
-            Double chargT = v.getChargT().get(tierId);
+            Double resEarliestArrT = v.getResEarliestArrT();
+            Double chargT = v.getChargT().get(tierId - 1);
             double resComplT;
-            double resArrT;
-            if (currTime >= eArrT) {
+            double newResStartChargeT;
+
+            if (currTime >= resEarliestArrT) {
                 resComplT = currTime + chargT;
-                resArrT = currTime;
+                newResStartChargeT = currTime;
             } else {
-                resComplT = eArrT + chargT;
-                resArrT = eArrT;
+                resComplT = resEarliestArrT + chargT;
+                newResStartChargeT = resEarliestArrT;
             }
             if (resComplT <= v.getDeadlT()) {
-                v.setResArrT(resArrT);
+                v.setResStartChargeT(newResStartChargeT);
                 v.setResComplT(resComplT);
                 currTime = resComplT;
             } else {
-                return new ReservationResult(false, null);
+                return new ReservationResult(null, false, null);
             }
         }
-        return new ReservationResult(true, combination);
+        return new ReservationResult(null, true, combination);
     }
 
-    public static List<List<Vehicle>> getAllCombination(Vehicle veh, List<Vehicle> list) {
+    /**
+     * Получаем все возможные комбинации
+     *
+     * @param veh - авто, которое пытаемся поставить в очередь.
+     * @param list - автомобили, которые уже стоят в очереди.
+     *
+     * @return Список всех возможных комбинаций
+     */
+    private static List<List<Vehicle>> getAllCombination(Vehicle veh, List<Vehicle> list) {
         List<List<Vehicle>> all = new ArrayList<>();
         List<Vehicle> newList = new LinkedList<>();
         newList.add(veh);
@@ -62,13 +91,22 @@ public class SimpleReserveFinder implements ReserveFinder {
         return all;
     }
 
-    private static List<List<Vehicle>> getAll(List<List<Vehicle>> all, Vehicle e) {
+    /**
+     * Для генерации новых комбинаций. Входной авто в один и тот же список ставится поочередно в новое место.
+     * Каждая постановка - новая коомбинация
+     *
+     * @param all - список входных комбинаций
+     * @param v - входной авто.
+     *
+     * @return
+     */
+    private static List<List<Vehicle>> getAll(List<List<Vehicle>> all, Vehicle v) {
         List<List<Vehicle>> result = new LinkedList<>();
         for (List<Vehicle> list : all) {
             int size = list.size();
             for (int i = 0; i <= size; i++) {
                 List newList = new LinkedList(list);
-                newList.add(i, e);
+                newList.add(i, v);
                 result.add(newList);
             }
         }
@@ -78,8 +116,8 @@ public class SimpleReserveFinder implements ReserveFinder {
     public static void main(String[] args) {
         Vehicle veh = prepareVehicle(14.23d, List.of(151.51d), 12.59d, 249.11);
         List<Vehicle> vehicles = prepareListVehicles();
-        int tierId = 0;
-        ReservationResult result = new SimpleReserveFinder().tryToReserve(veh, vehicles, tierId);
+        int tierId = 1;
+        ReservationResult result = new SimpleReserveFinder().tryToReserve(veh, vehicles, 0d, tierId);
         System.out.println(result.isReserved());
         if (result.isReserved()) {
             for (Vehicle v : result.getCombination()) {

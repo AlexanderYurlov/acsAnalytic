@@ -19,7 +19,7 @@ public class MatrixReserveFinder implements ReserveFinder {
     }
 
     @Override
-    public ReservationResult tryToReserve(Vehicle veh, List<Vehicle> vehicles, int tierId) {
+    public ReservationResult tryToReserve(Vehicle veh, List<Vehicle> vehicles, double chargingVeh, int tierId) {
         double[] b = MatrixCreatorHelper.createB(veh, vehicles, tierId);
         var k = vehicles.size();
         Matrix matrix = MatrixCreatorHelper.create(k);

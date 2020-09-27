@@ -7,5 +7,5 @@ import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 
 public interface ReserveFinder {
 
-    ReservationResult tryToReserve(Vehicle veh, List<Vehicle> vehicles, int tierId);
+    ReservationResult tryToReserve(Vehicle veh, List<Vehicle> vehicles, double gapTime, int tierId);
 }

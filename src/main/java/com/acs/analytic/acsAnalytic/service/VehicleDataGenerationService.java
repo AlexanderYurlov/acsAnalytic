@@ -70,7 +70,7 @@ public class VehicleDataGenerationService {
                 Double arrT = vehicles.get(i - 1).getArrT() + generateIa(initialData.getArrivalRate());
                 vehicle.setArrT(arrT);
             }
-            vehicle.setEArrT(generateEArrT());
+            vehicle.setEarliestArrT(generateEArrT());
 
             vehicles.add(vehicle);
 //            log.debug("" + vehicle);
@@ -221,7 +221,7 @@ public class VehicleDataGenerationService {
                 oneLine.append(CSV_SEPARATOR);
                 oneLine.append(vehicle.getChargT() == null ? "" : vehicle.getChargT().stream().map(x -> format.format(x)).collect(Collectors.joining(", ", "[", "]")));
                 oneLine.append(CSV_SEPARATOR);
-                oneLine.append(vehicle.getEArrT() == null ? "" : format.format(vehicle.getEArrT()));
+                oneLine.append(vehicle.getEarliestArrT() == null ? "" : format.format(vehicle.getEarliestArrT()));
                 oneLine.append(CSV_SEPARATOR);
                 oneLine.append(vehicle.getDeadlT() == null ? "" : format.format(vehicle.getDeadlT()));
                 oneLine.append(CSV_SEPARATOR);
@@ -229,11 +229,11 @@ public class VehicleDataGenerationService {
                 oneLine.append(CSV_SEPARATOR);
                 oneLine.append(vehicle.getResComplT() == null ? "" : format.format(vehicle.getResComplT()));
                 oneLine.append(CSV_SEPARATOR);
-                oneLine.append(vehicle.getActArrT() == null ? "" : format.format(vehicle.getActArrT()));
+                oneLine.append(vehicle.getActStartChargeT() == null ? "" : format.format(vehicle.getActStartChargeT()));
                 oneLine.append(CSV_SEPARATOR);
                 oneLine.append(vehicle.getActComplT() == null ? "" : format.format(vehicle.getActComplT()));
                 oneLine.append(CSV_SEPARATOR);
-                oneLine.append(vehicle.getResArrT() == null ? "" : format.format(vehicle.getResArrT()));
+                oneLine.append(vehicle.getResEarliestArrT() == null ? "" : format.format(vehicle.getResEarliestArrT()));
                 bw.write(oneLine.toString());
                 bw.newLine();
             }

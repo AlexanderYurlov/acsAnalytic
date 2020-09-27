@@ -12,7 +12,7 @@ public class TierPump {
     /**
      * Tier
      */
-    Tier Tier;
+    Tier tier;
 
 //    Period period;
 

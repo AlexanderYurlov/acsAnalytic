@@ -29,9 +29,9 @@ public class MatrixCreatorHelper {
             } else if (i == k) {
                 b[i] = veh.getChargT().get(tierId);
             } else if (i < 2 * k2 - 1) {
-                b[i] = vehicles.get(i - k2).getEArrT();
+                b[i] = vehicles.get(i - k2).getEarliestArrT();
             } else if (i == 2 * k2 - 1) {
-                b[i] = veh.getEArrT();
+                b[i] = veh.getEarliestArrT();
             } else if (i < 3 * k2 - 1) {
                 b[i] = vehicles.get(i - 2 * k2).getDeadlT();
             } else if (i == 3 * k2 - 1) {
@@ -282,7 +282,7 @@ public class MatrixCreatorHelper {
         return Vehicle.builder()
                 .arrT(arrT)
                 .chargT(chargT)
-                .eArrT(eArrT)
+                .earliestArrT(eArrT)
                 .deadlT(deadlT)
                 .build();
     }
