@@ -133,6 +133,13 @@ public class QueueProcessSimulationService {
      * @param deltaTime - разница, на которую обновляем
      */
     private void resetTime(Vehicle veh, Double deltaTime) {
+//        if (veh.getId() == 1 || veh.getId() == 2 || veh.getId() == 3) {
+            try {
+                System.out.println(deltaTime + " " + om.writeValueAsString(veh));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+//        }
         var resEarliestArrT = veh.getArrT() + veh.getEarliestArrT() - deltaTime;
         var resDeadlT = veh.getDeadlT() - deltaTime;
         var resStartChargeT = veh.getResStartChargeT() - deltaTime;
@@ -141,6 +148,13 @@ public class QueueProcessSimulationService {
         veh.setResDeadlT(round(resDeadlT));
         veh.setResStartChargeT(round(resStartChargeT));
         veh.setResComplT(round(resComplT));
+
+        try {
+            System.out.println(deltaTime + " " + om.writeValueAsString(veh));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -205,17 +219,22 @@ public class QueueProcessSimulationService {
     }
 
     private boolean reserve(Vehicle veh, List<Vehicle> listVehicles, int tierId, double remChargeTime) {
-        Double actArrTime;
-        if (veh.getEarliestArrT() >= remChargeTime) {
-            actArrTime = veh.getEarliestArrT();
+        Double resStartChargeT;
+        if (veh.getResEarliestArrT() >= remChargeTime) {
+            resStartChargeT = veh.getResEarliestArrT();
         } else {
-            actArrTime = remChargeTime;
+            resStartChargeT = remChargeTime;
         }
         var chargeTime = veh.getChargT().get(tierId - 1);
-        var actComplTime = actArrTime + chargeTime;
-        if (actComplTime <= veh.getDeadlT()) {
-            veh.setResStartChargeT(actArrTime);
-            veh.setResComplT(round(actComplTime));
+        var resComplTime = resStartChargeT + chargeTime;
+        if (resComplTime <= veh.getDeadlT()) {
+            System.out.println("remChargeTime = " + remChargeTime);
+            System.out.println("resStartChargeT = " + resStartChargeT);
+            System.out.println("resComplTime = " + resComplTime);
+            veh.setResStartChargeT(resStartChargeT);
+            veh.setResComplT(round(resComplTime));
+            veh.setActStartChargeT(round(veh.getArrT() + resStartChargeT));
+            veh.setActComplT(round(veh.getArrT() + resComplTime));
             listVehicles.add(veh);
             return true;
         }
@@ -302,22 +321,27 @@ public class QueueProcessSimulationService {
                 .rr(0.77f)
                 .r(List.of(
                         TierVehicle.builder()
-                                .vehicleRatio(.22f)
+                                .vehicleRatio(1f)
                                 .tierIndex(1)
-                                .build(),
-                        TierVehicle.builder()
-                                .vehicleRatio(.33f)
-                                .tierIndex(2)
-                                .build(),
-                        TierVehicle.builder()
-                                .vehicleRatio(.45f)
-                                .tierIndex(3)
                                 .build()
+//                        TierVehicle.builder()
+//                                .vehicleRatio(.22f)
+//                                .tierIndex(1)
+//                                .build(),
+//                        TierVehicle.builder()
+//                                .vehicleRatio(.33f)
+//                                .tierIndex(2)
+//                                .build(),
+//                        TierVehicle.builder()
+//                                .vehicleRatio(.45f)
+//                                .tierIndex(3)
+//                                .build()
                         )
                 )
 //                .n(100)
 //                .pumpTotal(3)
-                .pumpMap(Map.of(1, 3, 2, 7, 3, 10))
+//                .pumpMap(Map.of(1, 3, 2, 7, 3, 10))
+                .pumpMap(Map.of(1, 1))
 //                .sharablePumps()
                 .arrivalRate(12f)
 //                .timeGeneration()
