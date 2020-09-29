@@ -19,6 +19,8 @@ import com.acs.analytic.acsAnalytic.service.reservation.SimpleReserveFinder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static com.acs.analytic.acsAnalytic.Utils.round;
+
 @Service
 public class QueueProcessSimulationService {
 
@@ -131,21 +133,21 @@ public class QueueProcessSimulationService {
      * @param deltaTime - разница, на которую обновляем
      */
     private void resetTime(Vehicle veh, Double deltaTime) {
-        var resEarliestArrT = veh.getResEarliestArrT() - deltaTime;
+        var resEarliestArrT = veh.getArrT() + veh.getEarliestArrT() - deltaTime;
         var resDeadlT = veh.getDeadlT() - deltaTime;
         var resStartChargeT = veh.getResStartChargeT() - deltaTime;
-        var resComplT = veh.getResComplT() - deltaTime;
-        veh.setResEarliestArrT(resEarliestArrT);
-        veh.setResDeadlT(resDeadlT);
-        veh.setResStartChargeT(resStartChargeT);
-        veh.setResComplT(resComplT);
+        var resComplT = veh.getArrT() - veh.getResComplT() - deltaTime;
+        veh.setResEarliestArrT(round(resEarliestArrT));
+        veh.setResDeadlT(round(resDeadlT));
+        veh.setResStartChargeT(round(resStartChargeT));
+        veh.setResComplT(round(resComplT));
     }
 
     /**
-     * Проверка зарядилось ди авто
+     * Проверка зарядилось ли авто
      * @param chargingVehiclesMap
-     * @param tierId
-     * @param pumpId
+     * @param tierId - уровень
+     * @param pumpId - зарядник
      * @param deltaTime
      * @param processedVehiclesMap
      */
@@ -159,7 +161,7 @@ public class QueueProcessSimulationService {
         if (charging.containsKey(pumpId)) {
             var chargingVeh = charging.get(pumpId);
             var resComplT = chargingVeh.getResComplT() - deltaTime;
-            chargingVeh.setResComplT(resComplT);
+            chargingVeh.setResComplT(round(resComplT));
             if (resComplT <= 0) {
                 var charged = processedVehiclesMap.get(tierId);
                 charged.get(pumpId).add(chargingVeh);
@@ -213,7 +215,7 @@ public class QueueProcessSimulationService {
         var actComplTime = actArrTime + chargeTime;
         if (actComplTime <= veh.getDeadlT()) {
             veh.setResStartChargeT(actArrTime);
-            veh.setResComplT(actComplTime);
+            veh.setResComplT(round(actComplTime));
             listVehicles.add(veh);
             return true;
         }
@@ -241,12 +243,12 @@ public class QueueProcessSimulationService {
                 System.out.println("pump: " + i +"  size: " + map.get(i).size());
             }
         }
-        try {
-            System.out.println("Rejected: ");
-            System.out.println(om.writeValueAsString(rejectedVehicles));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            System.out.println("Rejected: ");resComplT
+//            System.out.println(om.writeValueAsString(rejectedVehicles));
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
 //        try {
 //            System.out.println("processed: ");
 //            System.out.println(om.writeValueAsString(processedVehiclesMap));
@@ -259,12 +261,14 @@ public class QueueProcessSimulationService {
 //        } catch (JsonProcessingException e) {
 //            e.printStackTrace();
 //        }
-//        try {
-//            System.out.println("all: ");
-//            System.out.println(om.writeValueAsString(vehicles));
-//        } catch (JsonProcessingException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            System.out.println("all: ");
+            for (Vehicle vehicle: vehicles) {
+                System.out.println(om.writeValueAsString(vehicle));
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
@@ -293,7 +297,7 @@ public class QueueProcessSimulationService {
 
                         )
                 )
-                .vehMax(3)
+                .vehMax(100)
                 .rw(0.23f)
                 .rr(0.77f)
                 .r(List.of(
@@ -315,7 +319,7 @@ public class QueueProcessSimulationService {
 //                .pumpTotal(3)
                 .pumpMap(Map.of(1, 3, 2, 7, 3, 10))
 //                .sharablePumps()
-                .arrivalRate(1200f)
+                .arrivalRate(12f)
 //                .timeGeneration()
 //                .n(11)
                 .build();

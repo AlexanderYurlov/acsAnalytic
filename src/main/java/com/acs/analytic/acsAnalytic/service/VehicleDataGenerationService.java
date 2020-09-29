@@ -19,10 +19,11 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.acs.analytic.acsAnalytic.model.InitialData;
 import com.acs.analytic.acsAnalytic.model.Tier;
-import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 import com.acs.analytic.acsAnalytic.model.TierVehicle;
 import com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType;
+import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 
+import static com.acs.analytic.acsAnalytic.Utils.round;
 import static com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType.RR;
 import static com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType.RW;
 
@@ -59,7 +60,7 @@ public class VehicleDataGenerationService {
 //             waiting time is within 20% margin from the average
 //            deadl_t(i,1)=(0.4*rand+0.8)*Tier_Wait_Aver(tier(i,1));
             var deadlT = (MIN_TIER_WAIT_AV + .2f * random.nextDouble()) * tier.getMaxWaitingTime();
-            vehicle.setDeadlT(deadlT);
+            vehicle.setDeadlT(round(deadlT));
 
             List<Double> chargT = getChargT(tier, initialData.getTiers());
             vehicle.setChargT(chargT);
@@ -68,7 +69,7 @@ public class VehicleDataGenerationService {
                 vehicle.setArrT(0d);
             } else {
                 Double arrT = vehicles.get(i - 1).getArrT() + generateIa(initialData.getArrivalRate());
-                vehicle.setArrT(arrT);
+                vehicle.setArrT(round(arrT));
             }
             vehicle.setEarliestArrT(generateEArrT());
 
@@ -84,7 +85,7 @@ public class VehicleDataGenerationService {
      * e_arr_t=5+25*rand(Veh_max,1);
      */
     private Double generateEArrT() {
-        return MINIMUM_ARRIVAL_TIME + FACTOR_ARRIVAL_TIME * random.nextDouble();
+        return round(MINIMUM_ARRIVAL_TIME + FACTOR_ARRIVAL_TIME * random.nextDouble());
     }
 
     /**
@@ -109,7 +110,7 @@ public class VehicleDataGenerationService {
             Float energyAcceptanceRateMinimum = value.getEnergyAcceptanceRate() < tier.getEnergyAcceptanceRate() ?
                     value.getEnergyAcceptanceRate() : tier.getEnergyAcceptanceRate();
             Double time = HOUR * enDem / energyAcceptanceRateMinimum;
-            chargT.add(time);
+            chargT.add(round(time));
         }
         return chargT;
     }
