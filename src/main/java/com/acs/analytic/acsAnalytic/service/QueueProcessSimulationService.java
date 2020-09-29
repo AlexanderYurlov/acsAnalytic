@@ -143,7 +143,7 @@ public class QueueProcessSimulationService {
         var resEarliestArrT = veh.getArrT() + veh.getEarliestArrT() - deltaTime;
         var resDeadlT = veh.getDeadlT() - deltaTime;
         var resStartChargeT = veh.getResStartChargeT() - deltaTime;
-        var resComplT = veh.getArrT() - veh.getResComplT() - deltaTime;
+        var resComplT = veh.getResComplT() - deltaTime;
         veh.setResEarliestArrT(round(resEarliestArrT));
         veh.setResDeadlT(round(resDeadlT));
         veh.setResStartChargeT(round(resStartChargeT));
