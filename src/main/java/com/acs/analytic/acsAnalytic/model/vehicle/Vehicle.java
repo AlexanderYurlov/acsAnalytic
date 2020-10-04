@@ -73,7 +73,7 @@ public class Vehicle {
     /**
      * Используемаый зарядник(pump)
      */
-    TierPump pump;
+    Integer pump;
 
     /**
      * Фактическое время начала зарядки
