@@ -1,5 +1,7 @@
 package com.acs.analytic.acsAnalytic.service;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,6 +15,7 @@ import com.acs.analytic.acsAnalytic.model.ReservationResult;
 import com.acs.analytic.acsAnalytic.model.Tier;
 import com.acs.analytic.acsAnalytic.model.TierPump;
 import com.acs.analytic.acsAnalytic.model.TierVehicle;
+import com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 import com.acs.analytic.acsAnalytic.service.reservation.ReserveFinder;
 import com.acs.analytic.acsAnalytic.service.reservation.SimpleReserveFinder;
@@ -77,10 +80,9 @@ public class QueueProcessSimulationService {
 
     private void finishChargingVehicles(Map<Integer, Map<Integer, Vehicle>> chargingVehiclesMap, Map<Integer, Map<Integer, List<Vehicle>>> processedVehiclesMap) {
         for (Integer tierId : chargingVehiclesMap.keySet()) {
-            for (Integer pumpId : processedVehiclesMap.keySet()) {
+            for (Integer pumpId : chargingVehiclesMap.get(tierId).keySet()) {
                 Vehicle veh = chargingVehiclesMap.get(tierId).get(pumpId);
-                List<Vehicle> processed = processedVehiclesMap.get(tierId).get(pumpId);
-                processed.add(veh);
+                processedVehiclesMap.get(tierId).get(pumpId).add(veh);
             }
         }
     }
@@ -289,24 +291,24 @@ public class QueueProcessSimulationService {
                 System.out.println("pump: " + i + "  size: " + map.get(i).size());
             }
         }
-        try {
-            System.out.println("Rejected: ");
-            System.out.println(om.writeValueAsString(rejectedVehicles));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        try {
-            System.out.println("processed: ");
-            System.out.println(om.writeValueAsString(processedVehiclesMap));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        try {
-            System.out.println("in progress: ");
-            System.out.println(om.writeValueAsString(inProgressVehiclesMap));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            System.out.println("Rejected: ");
+//            System.out.println(om.writeValueAsString(rejectedVehicles));
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
+//        try {
+//            System.out.println("processed: ");
+//            System.out.println(om.writeValueAsString(processedVehiclesMap));
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
+//        try {
+//            System.out.println("in progress: ");
+//            System.out.println(om.writeValueAsString(inProgressVehiclesMap));
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
         try {
             System.out.println("all: ");
             for (Vehicle vehicle : vehicles) {
@@ -343,7 +345,7 @@ public class QueueProcessSimulationService {
 
                         )
                 )
-                .vehMax(100)
+                .vehMax(10)
                 .rw(0.23f)
                 .rr(0.77f)
                 .r(List.of(
@@ -368,16 +370,61 @@ public class QueueProcessSimulationService {
 //                .n(100)
 //                .pumpTotal(3)
 //                .pumpMap(Map.of(1, 3, 2, 7, 3, 10))
-                .pumpMap(Map.of(1, 1))
+                .pumpMap(Map.of(1, 1, 2, 1, 3, 1))
 //                .sharablePumps()
                 .arrivalRate(10f)
 //                .timeGeneration()
 //                .n(11)
                 .build();
-        var vehicles = new VehicleDataGenerationService().generate(initialData);
+
+//        var vehicles = new VehicleDataGenerationService().generate(initialData);
+        var vehicles = readCsv();
         var tierPumpsMap = new PumpDataGenerationService().generate(initialData);
 
         queueProcessSimulationService.simulate(vehicles, tierPumpsMap);
+
+    }
+
+    private static List<Vehicle> readCsv() {
+        final String CSV_SEPARATOR = "\t";
+        List<Vehicle> vehicles = new ArrayList<>();
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader("test1.csv"));
+
+            // skip first string
+            System.out.println(reader.readLine());
+
+            while (reader.ready()) {
+                String vehStr = reader.readLine();
+                System.out.println(vehStr);
+                String[] str = vehStr.split(CSV_SEPARATOR);
+                vehicles.add(Vehicle.builder()
+                        .id(Integer.valueOf(str[0]))
+                        .type(getType(str[1]))
+                        .tierId(Integer.valueOf(str[2]))
+                        .arrT(Double.valueOf(str[3].replaceAll(",", ".")))
+                        .earliestArrT(Double.valueOf(str[4].replaceAll(",", ".")))
+                        .deadlT(Double.valueOf(str[5].replaceAll(",", ".")))
+                        .chargT(List.of(
+                                Double.valueOf(str[6].replaceAll(",", ".")),
+                                Double.valueOf(str[7].replaceAll(",", ".")),
+                                Double.valueOf(str[8].replaceAll(",", "."))))
+                        .build());
+            }
+            reader.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return vehicles;
+    }
+
+    private static VehicleRequestType getType(String s) {
+        if (s.equals("1")) {
+            return VehicleRequestType.RR;
+        } else {
+            return VehicleRequestType.RW;
+        }
 
     }
 
