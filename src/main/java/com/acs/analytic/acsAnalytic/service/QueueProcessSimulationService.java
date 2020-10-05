@@ -212,7 +212,7 @@ public class QueueProcessSimulationService {
                                    int tierId) {
 
         for (Integer pumpId : inProgress.get(tierId).keySet()) {
-            var listVehicles = inProgress.get(pumpId);
+            var listVehicles = inProgress.get(tierId).get(pumpId);
             if (listVehicles.isEmpty()) {
                 var remChargeTime = chargingVeh.get(tierId).get(pumpId) != null ? chargingVeh.get(tierId).get(pumpId).getResComplT() : 0;
                 boolean isReserved = reserve(vehicle, inProgress, tierId, remChargeTime, pumpId);
@@ -370,7 +370,7 @@ public class QueueProcessSimulationService {
 //                .n(100)
 //                .pumpTotal(3)
 //                .pumpMap(Map.of(1, 3, 2, 7, 3, 10))
-                .pumpMap(Map.of(1, 1, 2, 1, 3, 1))
+                .pumpMap(Map.of(1, 2, 2, 9, 3, 21))
 //                .sharablePumps()
                 .arrivalRate(10f)
 //                .timeGeneration()
