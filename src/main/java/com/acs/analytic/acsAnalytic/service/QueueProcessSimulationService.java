@@ -1,7 +1,5 @@
 package com.acs.analytic.acsAnalytic.service;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,7 +13,6 @@ import com.acs.analytic.acsAnalytic.model.ReservationResult;
 import com.acs.analytic.acsAnalytic.model.Tier;
 import com.acs.analytic.acsAnalytic.model.TierPump;
 import com.acs.analytic.acsAnalytic.model.TierVehicle;
-import com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 import com.acs.analytic.acsAnalytic.service.reservation.ReserveFinder;
 import com.acs.analytic.acsAnalytic.service.reservation.SimpleReserveFinder;
@@ -23,6 +20,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static com.acs.analytic.acsAnalytic.Utils.round;
+import static com.acs.analytic.acsAnalytic.UtilsCsv.readCsv;
+import static com.acs.analytic.acsAnalytic.UtilsCsv.writeToCSV;
 
 @Service
 public class QueueProcessSimulationService {
@@ -43,6 +42,8 @@ public class QueueProcessSimulationService {
      */
     public List<Vehicle> simulate(List<Vehicle> vehicles, Map<Integer, List<TierPump>> tierPumpsMap) throws JsonProcessingException {
 
+        long startTime = System.currentTimeMillis();
+
         // авто заряженные
         Map<Integer, Map<Integer, List<Vehicle>>> processedVehiclesMap = prepareVehiclesMap(tierPumpsMap);
 
@@ -60,21 +61,20 @@ public class QueueProcessSimulationService {
             var vehicle = vehicles.get(num);
             arrange(vehicle, inProgressVehiclesMap, chargingVehiclesMap, processedVehiclesMap);
 
-            // TierId в List начинается с 0; поэтому -1
             int tierId = vehicle.getTierId();
-            var inProgress = inProgressVehiclesMap.get(tierId);
-//            var chargingVeh = chargingVehiclesMap.get(tierId);
 
-            System.out.println("1 " + om.writeValueAsString(inProgress));
             boolean result = tryReserve(vehicle, inProgressVehiclesMap, chargingVehiclesMap, tierId);
-            System.out.println("2 " + om.writeValueAsString(inProgress));
             if (!result) {
                 rejectedVehicles.add(vehicle);
             }
         }
         finishChargingVehicles(chargingVehiclesMap, processedVehiclesMap);
 
+        long endTime = System.currentTimeMillis();
+        System.out.println("Total execution time: " + (endTime - startTime) + "ms");
+
         printResult(rejectedVehicles, processedVehiclesMap, inProgressVehiclesMap, vehicles);
+
         return vehicles;
     }
 
@@ -107,7 +107,7 @@ public class QueueProcessSimulationService {
             return true;
         }
         Boolean result = tryNormReserve(vehicle, inProgress, chargingVeh, tierId);
-        System.out.println("inProgress " + inProgress);
+
         return result;
     }
 
@@ -154,13 +154,6 @@ public class QueueProcessSimulationService {
      * @param deltaTime - разница, на которую обновляем
      */
     private void resetTime(Vehicle veh, Double deltaTime) {
-//        if (veh.getId() == 1 || veh.getId() == 2 || veh.getId() == 3) {
-//            try {
-//                System.out.println(deltaTime + " " + om.writeValueAsString(veh));
-//            } catch (JsonProcessingException e) {
-//                e.printStackTrace();
-//            }
-//        }
         var resEarliestArrT = veh.getArrT() + veh.getEarliestArrT() - deltaTime;
         var resDeadlT = veh.getDeadlT() - deltaTime;
         var resStartChargeT = veh.getActStartChargeT() - deltaTime;
@@ -169,13 +162,6 @@ public class QueueProcessSimulationService {
         veh.setResDeadlT(round(resDeadlT));
         veh.setResStartChargeT(round(resStartChargeT));
         veh.setResComplT(round(resComplT));
-
-//        try {
-//            System.out.println(deltaTime + " " + om.writeValueAsString(veh));
-//        } catch (JsonProcessingException e) {
-//            e.printStackTrace();
-//        }
-
     }
 
     /**
@@ -232,13 +218,9 @@ public class QueueProcessSimulationService {
             var vehicles = inProgress.get(tierId).get(pumpId);
             var charging = chargingVeh.get(tierId).get(pumpId);
             var remCharge = charging != null ? charging.getResComplT() : 0;
-            System.out.println("__");
-            System.out.println(inProgress.hashCode() + " - " + inProgress);
             ReservationResult result = reserveFinder.tryToReserve(veh, vehicles, remCharge, tierId, pumpId);
-            System.out.println(result.getCombination() + " " + result.isReserved());
             if (result.isReserved()) {
                 inProgress.get(tierId).put(pumpId, result.getCombination());
-                System.out.println(inProgress.hashCode() + " -- " + inProgress);
                 return true;
             }
         }
@@ -256,9 +238,6 @@ public class QueueProcessSimulationService {
         var chargeTime = veh.getChargT().get(tierId - 1);
         var resComplTime = resStartChargeT + chargeTime;
         if (resComplTime <= veh.getDeadlT()) {
-//            System.out.println("remChargeTime = " + remChargeTime);
-//            System.out.println("resStartChargeT = " + resStartChargeT);
-//            System.out.println("resComplTime = " + resComplTime);
             veh.setResStartChargeT(resStartChargeT);
             veh.setResComplT(round(resComplTime));
             veh.setActStartChargeT(round(deltaTime + resStartChargeT));
@@ -380,52 +359,8 @@ public class QueueProcessSimulationService {
 //        var vehicles = new VehicleDataGenerationService().generate(initialData);
         var vehicles = readCsv();
         var tierPumpsMap = new PumpDataGenerationService().generate(initialData);
-
-        queueProcessSimulationService.simulate(vehicles, tierPumpsMap);
-
-    }
-
-    private static List<Vehicle> readCsv() {
-        final String CSV_SEPARATOR = "\t";
-        List<Vehicle> vehicles = new ArrayList<>();
-
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader("test1.csv"));
-
-            // skip first string
-            System.out.println(reader.readLine());
-
-            while (reader.ready()) {
-                String vehStr = reader.readLine();
-                System.out.println(vehStr);
-                String[] str = vehStr.split(CSV_SEPARATOR);
-                vehicles.add(Vehicle.builder()
-                        .id(Integer.valueOf(str[0]))
-                        .type(getType(str[1]))
-                        .tierId(Integer.valueOf(str[2]))
-                        .arrT(Double.valueOf(str[3].replaceAll(",", ".")))
-                        .earliestArrT(Double.valueOf(str[4].replaceAll(",", ".")))
-                        .deadlT(Double.valueOf(str[5].replaceAll(",", ".")))
-                        .chargT(List.of(
-                                Double.valueOf(str[6].replaceAll(",", ".")),
-                                Double.valueOf(str[7].replaceAll(",", ".")),
-                                Double.valueOf(str[8].replaceAll(",", "."))))
-                        .build());
-            }
-            reader.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return vehicles;
-    }
-
-    private static VehicleRequestType getType(String s) {
-        if (s.equals("1")) {
-            return VehicleRequestType.RR;
-        } else {
-            return VehicleRequestType.RW;
-        }
-
+        var outVehicles = queueProcessSimulationService.simulate(vehicles, tierPumpsMap);
+        writeToCSV(outVehicles);
     }
 
 }

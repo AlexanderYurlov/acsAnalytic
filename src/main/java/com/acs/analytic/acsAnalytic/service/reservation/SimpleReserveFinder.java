@@ -31,7 +31,6 @@ public class SimpleReserveFinder implements ReserveFinder {
             System.out.println("Too mach combinations!");
             return new ReservationResult(null, false, null);
         }
-        System.out.println("allCombination size = " + allCombination.size());
 
         Double deltaTime = veh.getArrT();
         for (List<Vehicle> combination : allCombination) {
