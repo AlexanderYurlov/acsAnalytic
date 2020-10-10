@@ -65,6 +65,7 @@ public class QueueProcessSimulationService {
 
             boolean result = tryReserve(vehicle, inProgressVehiclesMap, chargingVehiclesMap, tierId);
             if (!result) {
+                vehicle.setPump(null);
                 rejectedVehicles.add(vehicle);
             }
         }
@@ -73,7 +74,7 @@ public class QueueProcessSimulationService {
         long endTime = System.currentTimeMillis();
         System.out.println("Total execution time: " + (endTime - startTime) + "ms");
 
-        printResult(rejectedVehicles, processedVehiclesMap, inProgressVehiclesMap, vehicles);
+//        printResult(rejectedVehicles, processedVehiclesMap, inProgressVehiclesMap, vehicles);
 
         return vehicles;
     }
@@ -102,10 +103,10 @@ public class QueueProcessSimulationService {
                                Map<Integer, Map<Integer, Vehicle>> chargingVeh,
                                int tierId) {
 
-        boolean isReserved = tryFastReserve(vehicle, inProgress, chargingVeh, tierId);
-        if (isReserved) {
-            return true;
-        }
+//        boolean isReserved = tryFastReserve(vehicle, inProgress, chargingVeh, tierId);
+//        if (isReserved) {
+//            return true;
+//        }
         Boolean result = tryNormReserve(vehicle, inProgress, chargingVeh, tierId);
 
         return result;
@@ -265,29 +266,28 @@ public class QueueProcessSimulationService {
     private void printResult(List<Vehicle> rejectedVehicles, Map<Integer, Map<Integer, List<Vehicle>>> processedVehiclesMap, Map<Integer, Map<Integer, List<Vehicle>>> inProgressVehiclesMap, List<Vehicle> vehicles) {
         for (Integer tier : processedVehiclesMap.keySet()) {
             var map = processedVehiclesMap.get(tier);
-            System.out.println("tier: " + tier);
             for (Integer i : map.keySet()) {
-                System.out.println("pump: " + i + "  size: " + map.get(i).size());
+                System.out.println("tier: " + tier + " pump: " + i + "  size: " + map.get(i).size());
             }
         }
-//        try {
-//            System.out.println("Rejected: ");
-//            System.out.println(om.writeValueAsString(rejectedVehicles));
-//        } catch (JsonProcessingException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            System.out.println("Rejected: ");
+            System.out.println(om.writeValueAsString(rejectedVehicles));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
 //        try {
 //            System.out.println("processed: ");
 //            System.out.println(om.writeValueAsString(processedVehiclesMap));
 //        } catch (JsonProcessingException e) {
 //            e.printStackTrace();
 //        }
-//        try {
-//            System.out.println("in progress: ");
-//            System.out.println(om.writeValueAsString(inProgressVehiclesMap));
-//        } catch (JsonProcessingException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            System.out.println("in progress: ");
+            System.out.println(om.writeValueAsString(inProgressVehiclesMap));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
         try {
             System.out.println("all: ");
             for (Vehicle vehicle : vehicles) {
@@ -307,60 +307,60 @@ public class QueueProcessSimulationService {
                                 .id(1)
                                 .batteryCapacity(81)
                                 .energyAcceptanceRate(120f)
-                                .maxWaitingTime(520)
+                                .maxWaitingTime(300)
                                 .build(),
                         Tier.builder()
                                 .id(2)
                                 .batteryCapacity(20)
                                 .energyAcceptanceRate(6.6f)
-                                .maxWaitingTime(300)
+                                .maxWaitingTime(600)
                                 .build(),
                         Tier.builder()
                                 .id(3)
                                 .batteryCapacity(14)
                                 .energyAcceptanceRate(3.3f)
-                                .maxWaitingTime(480)
+                                .maxWaitingTime(720)
                                 .build()
 
                         )
                 )
-                .vehMax(10)
+                .vehMax(8000)
                 .rw(0.23f)
                 .rr(0.77f)
                 .r(List.of(
                         TierVehicle.builder()
                                 .vehicleRatio(1f)
                                 .tierIndex(1)
+                                .build(),
+                        TierVehicle.builder()
+                                .vehicleRatio(.22f)
+                                .tierIndex(1)
+                                .build(),
+                        TierVehicle.builder()
+                                .vehicleRatio(.33f)
+                                .tierIndex(2)
+                                .build(),
+                        TierVehicle.builder()
+                                .vehicleRatio(.45f)
+                                .tierIndex(3)
                                 .build()
-//                        TierVehicle.builder()
-//                                .vehicleRatio(.22f)
-//                                .tierIndex(1)
-//                                .build(),
-//                        TierVehicle.builder()
-//                                .vehicleRatio(.33f)
-//                                .tierIndex(2)
-//                                .build(),
-//                        TierVehicle.builder()
-//                                .vehicleRatio(.45f)
-//                                .tierIndex(3)
-//                                .build()
                         )
                 )
 //                .n(100)
 //                .pumpTotal(3)
 //                .pumpMap(Map.of(1, 3, 2, 7, 3, 10))
-                .pumpMap(Map.of(1, 2, 2, 9, 3, 21))
+                .pumpMap(Map.of(1, 10, 2, 9, 3, 21))
 //                .sharablePumps()
-                .arrivalRate(10f)
+                .arrivalRate(12f)
 //                .timeGeneration()
 //                .n(11)
                 .build();
 
-//        var vehicles = new VehicleDataGenerationService().generate(initialData);
-        var vehicles = readCsv();
+        var vehicles = new VehicleDataGenerationService().generate(initialData);
+//        var vehicles = readCsv();
         var tierPumpsMap = new PumpDataGenerationService().generate(initialData);
         var outVehicles = queueProcessSimulationService.simulate(vehicles, tierPumpsMap);
-        writeToCSV(outVehicles);
+//        writeToCSV(outVehicles);
     }
 
 }

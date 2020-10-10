@@ -17,6 +17,8 @@ public class ReservationResult {
 
     boolean isReserved;
 
+    Double time;
+
     List<Vehicle> combination;
 
     public ReservationResult(boolean reserveStatus) {

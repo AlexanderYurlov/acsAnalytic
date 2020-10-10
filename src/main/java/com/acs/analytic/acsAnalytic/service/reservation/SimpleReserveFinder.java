@@ -26,20 +26,23 @@ public class SimpleReserveFinder implements ReserveFinder {
      */
     @Override
     public ReservationResult tryToReserve(Vehicle veh, List<Vehicle> vehicles, double remChargeTime, int tierId, int pumpId) {
-        List<List<Vehicle>> allCombination = getAllCombination(veh, vehicles);
-        if (vehicles.size() >= 7) {
+        if (vehicles.size() >= 9) { // условие tier!=1
             System.out.println("Too mach combinations!");
-            return new ReservationResult(null, false, null);
+            return new ReservationResult(false);
         }
+        List<List<Vehicle>> allCombination = getAllCombination(veh, vehicles);
 
+        ReservationResult bestResult = new ReservationResult(false);
         Double deltaTime = veh.getArrT();
         for (List<Vehicle> combination : allCombination) {
             ReservationResult result = tryToReserve(combination, remChargeTime, deltaTime, tierId, pumpId);
             if (result.isReserved()) {
-                return result;
+                if (bestResult.getTime() == null || bestResult.getTime() > result.getTime()) {
+                    bestResult = result;
+                }
             }
         }
-        return new ReservationResult(null, false, null);
+        return bestResult;
     }
 
     /**
@@ -74,10 +77,10 @@ public class SimpleReserveFinder implements ReserveFinder {
                 v.setPump(pumpId);
                 currTime = resComplT;
             } else {
-                return new ReservationResult(null, false, null);
+                return new ReservationResult(false);
             }
         }
-        return new ReservationResult(null, true, combination);
+        return new ReservationResult(null, true, currTime, combination);
     }
 
     /**

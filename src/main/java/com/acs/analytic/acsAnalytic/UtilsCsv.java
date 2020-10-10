@@ -57,13 +57,13 @@ public class UtilsCsv {
             bw.write("Id" + CSV_SEPARATOR +
                     "Type" + CSV_SEPARATOR +
                     "TierId" + CSV_SEPARATOR +
+                    "Pump" + CSV_SEPARATOR +
                     "ArrT" + CSV_SEPARATOR +
                     "ChargT" + CSV_SEPARATOR +
                     "EArrT" + CSV_SEPARATOR +
                     "resEarliestArrT" + CSV_SEPARATOR +
                     "DeadlT" + CSV_SEPARATOR +
                     "resDeadlT" + CSV_SEPARATOR +
-                    "Pump" + CSV_SEPARATOR +
                     "actStartChargeT" + CSV_SEPARATOR +
                     "resStartChargeT" + CSV_SEPARATOR +
                     "actComplT" + CSV_SEPARATOR +
@@ -77,6 +77,8 @@ public class UtilsCsv {
                         CSV_SEPARATOR +
                         (vehicle.getTierId() == null ? "" : vehicle.getTierId()) +
                         CSV_SEPARATOR +
+                        (vehicle.getPump() == null ? "0" : vehicle.getPump()) +
+                        CSV_SEPARATOR +
                         (vehicle.getArrT() == null ? "" : vehicle.getArrT()) +
                         CSV_SEPARATOR +
                         (vehicle.getChargT() == null ? "" : vehicle.getChargT().stream().map(String::valueOf).collect(Collectors.joining(", ", "[", "]"))) +
@@ -89,8 +91,6 @@ public class UtilsCsv {
                         CSV_SEPARATOR +
                         (vehicle.getResDeadlT() == null ? "" : vehicle.getResDeadlT()) +
                         CSV_SEPARATOR +
-                        (vehicle.getPump() == null ? "" : vehicle.getPump()) +
-                        CSV_SEPARATOR +
                         (vehicle.getActStartChargeT() == null ? "" : vehicle.getActStartChargeT()) +
                         CSV_SEPARATOR +
                         (vehicle.getResStartChargeT() == null ? "" : vehicle.getResStartChargeT()) +
@@ -98,7 +98,7 @@ public class UtilsCsv {
                         (vehicle.getActComplT() == null ? "" : vehicle.getActComplT()) +
                         CSV_SEPARATOR +
                         (vehicle.getResComplT() == null ? "" : vehicle.getResComplT());
-                System.out.println(oneLine);
+
                 bw.write(oneLine);
                 bw.newLine();
             }
