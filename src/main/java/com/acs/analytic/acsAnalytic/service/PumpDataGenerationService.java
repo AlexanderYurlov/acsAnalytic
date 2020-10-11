@@ -6,36 +6,67 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import com.acs.analytic.acsAnalytic.model.InitialData;
 import com.acs.analytic.acsAnalytic.model.Tier;
 import com.acs.analytic.acsAnalytic.model.TierPump;
+import com.acs.analytic.acsAnalytic.model.TierPumpConf;
 import com.acs.analytic.acsAnalytic.model.TierVehicle;
 
 @Service
 public class PumpDataGenerationService {
 
-    public Map<Integer, List<TierPump>> generate(InitialData initialData) {
+    public TierPumpConf generate(InitialData initialData) {
 
         var tiers = initialData.getTiers();
+        var sharablePumpMap = initialData.getSharablePumps();
         var pumpMap = initialData.getPumpMap();
-        var tetierPumpsMap = new HashMap();
+
+        Map sharableTierPumpsMap = new HashMap<>();
+        Map tierPumpsMap = new HashMap<>();
 
         int id = 1;
-
         for (Tier tier : tiers) {
             if (pumpMap.get(tier.getId()) != null) {
-                List<TierPump> tierPumpList = new ArrayList<>();
-                Integer quantity = pumpMap.get(tier.getId());
-                for (int j = 0; j < quantity; j++) {
-                    TierPump tierPump = new TierPump(id++, tier);
-                    tierPumpList.add(tierPump);
-                }
-                tetierPumpsMap.put(tier.getId(), tierPumpList);
+
+                List<TierPump> sharableTierPumpList = getPumpList(sharablePumpMap, tier, id);
+                sharableTierPumpsMap.put(tier.getId(), sharableTierPumpList);
+                id = getLastId(sharableTierPumpList, id);
+                List<TierPump> tierPumpList = getPumpList(pumpMap, tier, id);
+                id = getLastId(tierPumpList, id);
+                tierPumpsMap.put(tier.getId(), tierPumpList);
             }
         }
-        return tetierPumpsMap;
+
+//        try {
+//            System.out.println(new ObjectMapper().writeValueAsString(new TierPumpConf(sharableTierPumpsMap, tierPumpsMap)));
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
+
+        return new TierPumpConf(sharableTierPumpsMap, tierPumpsMap);
     }
+
+    private int getLastId(List<TierPump> pumpList, int id) {
+        if (!CollectionUtils.isEmpty(pumpList)) {
+            id = pumpList.get(pumpList.size() - 1).getId() + 1;
+        }
+        return id;
+    }
+
+    private List<TierPump> getPumpList(Map<Integer, Integer> pumpMap, Tier tier, int id) {
+        List<TierPump> tierPumpList = new ArrayList<>();
+        Integer quantity = pumpMap.get(tier.getId());
+        if (quantity != null) {
+            for (int j = 0; j < quantity; j++) {
+                TierPump tierPump = new TierPump(id++, tier);
+                tierPumpList.add(tierPump);
+            }
+        }
+        return tierPumpList;
+    }
+
 
     public static void main(String[] args) {
         InitialData initialData = InitialData.builder()
@@ -82,7 +113,7 @@ public class PumpDataGenerationService {
 //                .n(100)
 //                .pumpTotal(3)
                 .pumpMap(Map.of(1, 3, 2, 7, 3, 10))
-//                .sharablePumps()
+                .sharablePumps(Map.of(1, 2, 2, 3))
                 .arrivalRate(12f)
 //                .timeGeneration()
 //                .n(11)

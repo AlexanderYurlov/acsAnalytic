@@ -34,9 +34,8 @@ public class InitialData {
 
     /**
      * Numbers of sharable pumps per tier: PS1, …, PSN;
-     * TODO Это конкретные номера пампов в системе?
      */
-    List<Integer> sharablePumps;
+    Map<Integer, Integer> sharablePumps;
 
 
     /**
