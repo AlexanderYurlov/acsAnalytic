@@ -24,4 +24,11 @@ public class ReservationResult {
     public ReservationResult(boolean reserveStatus) {
         isReserved = reserveStatus;
     }
+
+    public void activateDraft() {
+        for (Vehicle vehicle: combination) {
+            vehicle.setActStartChargeT(vehicle.getDraftStartChargeT());
+            vehicle.setActComplT(vehicle.getDraftComplT());
+        }
+    }
 }

@@ -57,6 +57,7 @@ public class UtilsCsv {
             bw.write("Id" + CSV_SEPARATOR +
                     "Type" + CSV_SEPARATOR +
                     "TierId" + CSV_SEPARATOR +
+                    "chargedTierId" + CSV_SEPARATOR +
                     "Pump" + CSV_SEPARATOR +
                     "ArrT" + CSV_SEPARATOR +
                     "ChargT" + CSV_SEPARATOR +
@@ -76,6 +77,8 @@ public class UtilsCsv {
                         (vehicle.getType() == null ? "" : vehicle.getType()) +
                         CSV_SEPARATOR +
                         (vehicle.getTierId() == null ? "" : vehicle.getTierId()) +
+                        CSV_SEPARATOR +
+                        (vehicle.getChargedTierId() == null ? "" : vehicle.getChargedTierId()) +
                         CSV_SEPARATOR +
                         (vehicle.getPump() == null ? "0" : vehicle.getPump()) +
                         CSV_SEPARATOR +

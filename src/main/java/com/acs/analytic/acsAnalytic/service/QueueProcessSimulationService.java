@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static com.acs.analytic.acsAnalytic.Utils.round;
+import static com.acs.analytic.acsAnalytic.UtilsCsv.writeToCSV;
 
 @Service
 public class QueueProcessSimulationService {
@@ -66,6 +67,7 @@ public class QueueProcessSimulationService {
             boolean result = tryReserve(vehicle, simulationResult, tierPumpConf);
             if (!result) {
                 vehicle.setPump(0);
+                vehicle.setChargedTierId(0);
                 rejectedVehicles.add(vehicle);
             }
         }
@@ -111,8 +113,17 @@ public class QueueProcessSimulationService {
             return true;
         }
 
-        result = trySharablePumpsReserve(veh, simulationResult, tierPumpConf, tierId, true);
-        return result;
+//        Условие разделения розеток: более медленные авто могут заряжаться от более быстрых розеток, но не наоборот
+        for (int chargeTierId = tierId; chargeTierId <= tierPumpConf.getSharableTierPumpsMap().size(); chargeTierId++) {
+            result = trySharablePumpsReserve(veh, simulationResult, tierPumpConf, chargeTierId, true);
+            if (result) {
+                if (tierId != chargeTierId) {
+                    System.out.println("trySharablePumpsReserve true " + tierId + " - " + chargeTierId);
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean trySharablePumpsReserve(Vehicle veh, SimulationResult simulationResult, TierPumpConf tierPumpConf, int tierId, boolean isSharable) {
@@ -120,13 +131,7 @@ public class QueueProcessSimulationService {
         Map<Integer, Map<Integer, Vehicle>> chargingVeh = simulationResult.getChargingVehiclesMap();
         for (Integer pumpId : inProgress.get(tierId).keySet()) {
             Boolean sharableState = tierPumpConf.isSharable(tierId, pumpId);
-            System.out.println("pumpId " + pumpId);
-            System.out.println("tierId = " + tierId);
-            System.out.println("isSharable = " + isSharable);
-            System.out.println("sharableState = " + sharableState);
-            System.out.println(isSharable && sharableState || !isSharable && !sharableState);
             if (isSharable && sharableState || !isSharable && !sharableState) {
-                System.out.println("!! " + pumpId);
                 var vehicles = inProgress.get(tierId).get(pumpId);
                 var charging = chargingVeh.get(tierId).get(pumpId);
                 var remCharge = charging != null ? charging.getResComplT() : 0;
@@ -184,7 +189,7 @@ public class QueueProcessSimulationService {
      */
     private void resetTime(Vehicle veh, Double deltaTime) {
         var resEarliestArrT = veh.getArrT() + veh.getEarliestArrT() - deltaTime;
-        var resDeadlT = veh.getDeadlT() - deltaTime;
+        var resDeadlT = resEarliestArrT + veh.getDeadlT();
         var resStartChargeT = veh.getActStartChargeT() - deltaTime;
         var resComplT = veh.getActComplT() - deltaTime;
         veh.setResEarliestArrT(round(resEarliestArrT));
@@ -296,7 +301,9 @@ public class QueueProcessSimulationService {
         try {
             System.out.println("all: ");
             for (Vehicle vehicle : vehicles) {
-                System.out.println(om.writeValueAsString(vehicle));
+                if (vehicle.getPump().equals(23)) {
+                    System.out.println(om.writeValueAsString(vehicle));
+                }
             }
         } catch (JsonProcessingException e) {
             e.printStackTrace();
@@ -310,9 +317,9 @@ public class QueueProcessSimulationService {
                 .tiers(List.of(
                         Tier.builder()
                                 .id(1)
-                                .batteryCapacity(81)
-                                .energyAcceptanceRate(120f)
-                                .maxWaitingTime(300)
+                                .batteryCapacity(14)
+                                .energyAcceptanceRate(3.3f)
+                                .maxWaitingTime(720)
                                 .build(),
                         Tier.builder()
                                 .id(2)
@@ -322,19 +329,18 @@ public class QueueProcessSimulationService {
                                 .build(),
                         Tier.builder()
                                 .id(3)
-                                .batteryCapacity(14)
-                                .energyAcceptanceRate(3.3f)
-                                .maxWaitingTime(720)
+                                .batteryCapacity(81)
+                                .energyAcceptanceRate(120f)
+                                .maxWaitingTime(300)
                                 .build()
-
                         )
                 )
-                .vehMax(100)
+                .vehMax(1000)
                 .rw(0.23f)
                 .rr(0.77f)
                 .r(List.of(
                         TierVehicle.builder()
-                                .vehicleRatio(.22f)
+                                .vehicleRatio(.45f)
                                 .tierIndex(1)
                                 .build(),
                         TierVehicle.builder()
@@ -342,22 +348,23 @@ public class QueueProcessSimulationService {
                                 .tierIndex(2)
                                 .build(),
                         TierVehicle.builder()
-                                .vehicleRatio(.45f)
+                                .vehicleRatio(.22f)
                                 .tierIndex(3)
                                 .build()
                         )
                 )
 //                .pumpMap(Map.of(1, 3, 2, 7, 3, 10))
-                .pumpMap(Map.of(1, 2, 2, 2, 3, 5))
-                .sharablePumps(Map.of(1, 1, 2, 2))
-                .arrivalRate(12f)
+//                .pumpMap(Map.of(1, 21, 2, 9, 3, 2))
+                .sharablePumps(Map.of(1, 21, 2, 9, 3, 2))
+//                .sharablePumps(Map.of(1, 1, 2, 2))
+                .arrivalRate(14f)
                 .build();
 
         var vehicles = new VehicleDataGenerationService().generate(initialData);
 //        var vehicles = readCsv();
         var tierPumpsMap = new PumpDataGenerationService().generate(initialData);
         var outVehicles = queueProcessSimulationService.simulate(vehicles, tierPumpsMap);
-//        writeToCSV(outVehicles);
+        writeToCSV(outVehicles);
     }
 
 }

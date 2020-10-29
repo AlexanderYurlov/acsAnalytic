@@ -6,6 +6,8 @@ import java.util.List;
 
 import com.acs.analytic.acsAnalytic.model.ReservationResult;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static com.acs.analytic.acsAnalytic.Utils.round;
 import static com.acs.analytic.acsAnalytic.service.reservation.matrix.MatrixCreatorHelper.prepareListVehicles;
@@ -26,7 +28,7 @@ public class SimpleReserveFinder implements ReserveFinder {
      */
     @Override
     public ReservationResult tryToReserve(Vehicle veh, List<Vehicle> vehicles, double remChargeTime, int tierId, int pumpId) {
-        if (vehicles.size() >= 7) { // условие tier!=1
+        if (vehicles.size() >= 9) { // условие tier!=1
             System.out.println("Too mach combinations!");
             return new ReservationResult(false);
         }
@@ -39,6 +41,12 @@ public class SimpleReserveFinder implements ReserveFinder {
             if (result.isReserved()) {
                 if (bestResult.getTime() == null || bestResult.getTime() > result.getTime()) {
                     bestResult = result;
+                    bestResult.activateDraft();
+//                    try {
+//                        System.out.println(new ObjectMapper().writeValueAsString(bestResult.getCombination()));
+//                    } catch (JsonProcessingException e) {
+//                        e.printStackTrace();
+//                    }
                 }
             }
         }
@@ -72,8 +80,9 @@ public class SimpleReserveFinder implements ReserveFinder {
             if (resComplT <= v.getResDeadlT()) {
                 v.setResStartChargeT(round(newResStartChargeT));
                 v.setResComplT(round(resComplT));
-                v.setActStartChargeT(round(deltaTime + newResStartChargeT));
-                v.setActComplT(round(deltaTime + resComplT));
+                v.setDraftStartChargeT(round(deltaTime + newResStartChargeT));
+                v.setDraftComplT(round(deltaTime + resComplT));
+                v.setChargedTierId(tierId);
                 v.setPump(pumpId);
                 currTime = resComplT;
             } else {

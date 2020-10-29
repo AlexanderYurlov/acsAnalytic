@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.ValidationException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -20,8 +22,16 @@ public class PumpDataGenerationService {
     public TierPumpConf generate(InitialData initialData) {
 
         var tiers = initialData.getTiers();
+        validate(initialData);
         var sharablePumpMap = initialData.getSharablePumps();
         var pumpMap = initialData.getPumpMap();
+
+        if (pumpMap == null) {
+            pumpMap = new HashMap<>();
+        }
+        if (sharablePumpMap == null) {
+            sharablePumpMap = new HashMap<>();
+        }
 
         Map sharableTierPumpsMap = new HashMap<>();
         Map tierPumpsMap = new HashMap<>();
@@ -30,13 +40,17 @@ public class PumpDataGenerationService {
         for (Tier tier : tiers) {
             if (pumpMap.get(tier.getId()) != null) {
 
-                List<TierPump> sharableTierPumpList = getPumpList(sharablePumpMap, tier, id);
-                sharableTierPumpsMap.put(tier.getId(), sharableTierPumpList);
-                id = getLastId(sharableTierPumpList, id);
                 List<TierPump> tierPumpList = getPumpList(pumpMap, tier, id);
                 id = getLastId(tierPumpList, id);
                 tierPumpsMap.put(tier.getId(), tierPumpList);
             }
+            if (sharablePumpMap.get(tier.getId()) != null) {
+                List<TierPump> sharableTierPumpList = getPumpList(sharablePumpMap, tier, id);
+                sharableTierPumpsMap.put(tier.getId(), sharableTierPumpList);
+                id = getLastId(sharableTierPumpList, id);
+
+            }
+
         }
 
 //        try {
@@ -46,6 +60,12 @@ public class PumpDataGenerationService {
 //        }
 
         return new TierPumpConf(sharableTierPumpsMap, tierPumpsMap);
+    }
+
+    private void validate(InitialData initialData) {
+        if (initialData.getPumpMap() == null && initialData.getSharablePumps() == null) {
+            throw new ValidationException("Incorrect InitData");
+        }
     }
 
     private int getLastId(List<TierPump> pumpList, int id) {

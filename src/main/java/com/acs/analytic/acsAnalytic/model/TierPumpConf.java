@@ -21,9 +21,12 @@ public class TierPumpConf {
     Map<Integer, List<TierPump>> tierPumpsMap;
 
     public Boolean isSharable(int tierId, Integer pumpId) {
-        //TODO
-        if (sharableTierPumpsMap.get(tierId) != null && sharableTierPumpsMap.get(pumpId) != null) {
-            return true;
+        if (sharableTierPumpsMap != null && sharableTierPumpsMap.get(tierId) != null) {
+            for (TierPump pump : sharableTierPumpsMap.get(tierId)) {
+                if (pump.getId() == pumpId) {
+                    return true;
+                }
+            }
         }
         return false;
     }

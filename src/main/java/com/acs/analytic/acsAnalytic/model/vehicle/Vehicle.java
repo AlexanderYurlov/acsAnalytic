@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import com.acs.analytic.acsAnalytic.model.TierPump;
 import com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Data
 @Builder
@@ -38,6 +39,11 @@ public class Vehicle {
      * Зарядка используемая по умолчанию
      */
     Integer tierId;
+
+    /**
+     * Зарядка используемая по умолчанию
+     */
+    Integer chargedTierId;
 
     /**
      * Время запроса на зарядку
@@ -81,14 +87,25 @@ public class Vehicle {
     Double actStartChargeT;
 
     /**
-     * Обновлённое время начала зарядки
+     * Фактическое время начала зарядки (черновое)
      */
-    Double resStartChargeT;
+    @JsonIgnore
+    Double draftStartChargeT;
 
     /**
      * Фактическое время окончания зарядки
      */
     Double actComplT;
+
+    /**
+     * Фактическое время окончания зарядки (черновое)
+     */
+    Double draftComplT;
+
+    /**
+     * Обновлённое время начала зарядки
+     */
+    Double resStartChargeT;
 
     /**
      * Обновлённое время окончания зарядки. compl_t. Если автомобиль зарядился = 0
