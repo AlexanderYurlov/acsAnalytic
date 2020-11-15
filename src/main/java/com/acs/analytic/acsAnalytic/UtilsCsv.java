@@ -80,7 +80,7 @@ public class UtilsCsv {
                         CSV_SEPARATOR +
                         (vehicle.getChargedTierId() == null ? "" : vehicle.getChargedTierId()) +
                         CSV_SEPARATOR +
-                        (vehicle.getPump() == null ? "0" : vehicle.getPump()) +
+                        (vehicle.getPumpId() == null ? "0" : vehicle.getPumpId()) +
                         CSV_SEPARATOR +
                         (vehicle.getArrT() == null ? "" : vehicle.getArrT()) +
                         CSV_SEPARATOR +

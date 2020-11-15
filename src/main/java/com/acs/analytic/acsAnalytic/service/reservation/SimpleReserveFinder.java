@@ -4,15 +4,16 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import com.acs.analytic.acsAnalytic.model.ReservationResult;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static com.acs.analytic.acsAnalytic.Utils.round;
 import static com.acs.analytic.acsAnalytic.service.reservation.matrix.MatrixCreatorHelper.prepareListVehicles;
 import static com.acs.analytic.acsAnalytic.service.reservation.matrix.MatrixCreatorHelper.prepareVehicle;
 
+@Service
 public class SimpleReserveFinder implements ReserveFinder {
 
     /**
@@ -83,7 +84,7 @@ public class SimpleReserveFinder implements ReserveFinder {
                 v.setDraftStartChargeT(round(deltaTime + newResStartChargeT));
                 v.setDraftComplT(round(deltaTime + resComplT));
                 v.setChargedTierId(tierId);
-                v.setPump(pumpId);
+                v.setPumpId(pumpId);
                 currTime = resComplT;
             } else {
                 return new ReservationResult(false);

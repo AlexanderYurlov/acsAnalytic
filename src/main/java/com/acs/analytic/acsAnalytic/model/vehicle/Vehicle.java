@@ -79,7 +79,7 @@ public class Vehicle {
     /**
      * Используемаый зарядник(pump)
      */
-    Integer pump;
+    Integer pumpId;
 
     /**
      * Фактическое время начала зарядки

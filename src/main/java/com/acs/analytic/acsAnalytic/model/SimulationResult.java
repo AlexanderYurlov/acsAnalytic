@@ -13,11 +13,6 @@ import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 public class SimulationResult {
 
     /**
-     * авто заряженные
-     */
-    Map<Integer, Map<Integer, List<Vehicle>>> processedVehiclesMap;
-
-    /**
      * авто стоящие на зарядке в данный момент
      */
     Map<Integer, Map<Integer, Vehicle>> chargingVehiclesMap;
@@ -34,7 +29,6 @@ public class SimulationResult {
 
 
     public SimulationResult(TierPumpConf tierPumpConf) {
-        this.processedVehiclesMap = prepareVehiclesMap(tierPumpConf);
         this.chargingVehiclesMap = new HashMap<>();
         this.inProgressVehiclesMap = prepareVehiclesMap(tierPumpConf);
         this.rejectedVehicles = new ArrayList<>();
