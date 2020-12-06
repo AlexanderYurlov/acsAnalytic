@@ -40,12 +40,12 @@ public class PumpDataGenerationService {
         for (Tier tier : tiers) {
             if (pumpMap.get(tier.getId()) != null) {
 
-                List<TierPump> tierPumpList = getPumpList(pumpMap, tier, id);
+                List<TierPump> tierPumpList = getPumpList(pumpMap, tier, id, false);
                 id = getLastId(tierPumpList, id);
                 tierPumpsMap.put(tier.getId(), tierPumpList);
             }
             if (sharablePumpMap.get(tier.getId()) != null) {
-                List<TierPump> sharableTierPumpList = getPumpList(sharablePumpMap, tier, id);
+                List<TierPump> sharableTierPumpList = getPumpList(sharablePumpMap, tier, id, true);
                 sharableTierPumpsMap.put(tier.getId(), sharableTierPumpList);
                 id = getLastId(sharableTierPumpList, id);
 
@@ -59,6 +59,8 @@ public class PumpDataGenerationService {
 //            e.printStackTrace();
 //        }
 
+        System.out.println(tierPumpsMap);
+        System.out.println(sharableTierPumpsMap);
         return new TierPumpConf(sharableTierPumpsMap, tierPumpsMap);
     }
 
@@ -75,12 +77,12 @@ public class PumpDataGenerationService {
         return id;
     }
 
-    private List<TierPump> getPumpList(Map<Integer, Integer> pumpMap, Tier tier, int id) {
+    private List<TierPump> getPumpList(Map<Integer, Integer> pumpMap, Tier tier, int id, Boolean isShareable) {
         List<TierPump> tierPumpList = new ArrayList<>();
         Integer quantity = pumpMap.get(tier.getId());
         if (quantity != null) {
             for (int j = 0; j < quantity; j++) {
-                TierPump tierPump = new TierPump(id++, tier);
+                TierPump tierPump = new TierPump(id++, tier, isShareable);
                 tierPumpList.add(tierPump);
             }
         }

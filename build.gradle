@@ -1,8 +1,8 @@
 plugins {
-	id 'org.springframework.boot' version '2.2.6.RELEASE'
-	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
-	id 'java'
-	id 'war'
+    id 'org.springframework.boot' version '2.2.6.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'java'
+    id 'war'
 }
 
 group = 'com.acs.analytic'
@@ -10,15 +10,16 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
 ext {
-
     ver = [
-            gurobi    : '7.0.1',
-            glpk      : '1.12.0',
+            glpk                   : '1.12.0',
+//            liquibaseVersion       : "3.10.1",
+            postgresVersion        : "42.2.14",
+            hibernateTypes52Version: "2.9.12",
     ]
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
     maven {
         url "https://cogcomp.seas.upenn.edu/m2repo/"
     }
@@ -32,32 +33,33 @@ configurations.all {
 }
 
 dependencies {
-	annotationProcessor(
-			"org.springframework.boot:spring-boot-configuration-processor",
-			"org.projectlombok:lombok",
-	)
+    annotationProcessor(
+            "org.springframework.boot:spring-boot-configuration-processor",
+            "org.projectlombok:lombok",
+    )
 
-	compileOnly(
-			"org.projectlombok:lombok",
-	)
+    compileOnly(
+            "org.projectlombok:lombok",
+    )
 
     compile("org.gnu.glpk:glpk-java:$ver.glpk")
 
-	implementation (
+    implementation(
             "org.springframework.boot:spring-boot-starter-web",
             "org.springframework.boot:spring-boot-starter-undertow",
-
-//TODO https://stackoverflow.com/questions/27535559/gurobi-unsatisfiedlinkerror
-//            "com.gurobi:gurobi:$ver.gurobi"
+            'org.springframework.boot:spring-boot-starter-data-jpa',
+            "com.vladmihalcea:hibernate-types-52:$ver.hibernateTypes52Version",
+            "org.postgresql:postgresql:$ver.postgresVersion",
+//            "org.liquibase:liquibase-core:$ver.liquibaseVersion",
 
     )
 
-	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
-	testImplementation('org.springframework.boot:spring-boot-starter-test') {
-		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-	}
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
 }
 
 test {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
