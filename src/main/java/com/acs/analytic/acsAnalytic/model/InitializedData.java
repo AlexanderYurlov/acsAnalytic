@@ -18,6 +18,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -28,6 +29,7 @@ import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 @Entity
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @SuperBuilder
 public class InitializedData implements Serializable {
 

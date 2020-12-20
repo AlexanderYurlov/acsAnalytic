@@ -12,11 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.AllArgsConstructor;
 
-import com.acs.analytic.acsAnalytic.controller.utils.MockUtils;
-import com.acs.analytic.acsAnalytic.dao.InitialDataRepository;
-import com.acs.analytic.acsAnalytic.dao.InitializedDataRepository;
 import com.acs.analytic.acsAnalytic.model.InitialData;
-import com.acs.analytic.acsAnalytic.model.InitializedData;
 import com.acs.analytic.acsAnalytic.model.TierPumpConf;
 import com.acs.analytic.acsAnalytic.model.resp.ReportDetailsDataDto;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
