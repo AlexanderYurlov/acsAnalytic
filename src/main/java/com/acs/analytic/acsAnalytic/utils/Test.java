@@ -1,4 +1,4 @@
-package com.acs.analytic.acsAnalytic;
+package com.acs.analytic.acsAnalytic.utils;
 
 import org.gnu.glpk.GLPK;
 import org.gnu.glpk.GLPKConstants;

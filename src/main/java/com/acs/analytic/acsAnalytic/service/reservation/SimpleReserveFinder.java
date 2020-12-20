@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import com.acs.analytic.acsAnalytic.model.ReservationResult;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 
-import static com.acs.analytic.acsAnalytic.Utils.round;
+import static com.acs.analytic.acsAnalytic.utils.Utils.round;
 import static com.acs.analytic.acsAnalytic.service.reservation.matrix.MatrixCreatorHelper.prepareListVehicles;
 import static com.acs.analytic.acsAnalytic.service.reservation.matrix.MatrixCreatorHelper.prepareVehicle;
 
@@ -29,7 +29,7 @@ public class SimpleReserveFinder implements ReserveFinder {
      */
     @Override
     public ReservationResult tryToReserve(Vehicle veh, List<Vehicle> vehicles, double remChargeTime, int tierId, int pumpId) {
-        if (vehicles.size() >= 9) { // условие tier!=1
+        if (vehicles.size() >= 7) { // условие tier!=1
             System.out.println("Too mach combinations!");
             return new ReservationResult(false);
         }

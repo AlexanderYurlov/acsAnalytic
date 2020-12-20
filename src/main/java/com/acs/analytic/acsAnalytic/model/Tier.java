@@ -14,6 +14,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Table(name = "tier")
 @Entity
 @Data
@@ -51,6 +53,7 @@ public class Tier {
     @Column(name = "max_waiting_time")
     Integer maxWaitingTime;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     InitialData initialData;
 

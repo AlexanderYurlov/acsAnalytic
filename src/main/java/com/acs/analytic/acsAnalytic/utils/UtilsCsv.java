@@ -1,4 +1,4 @@
-package com.acs.analytic.acsAnalytic;
+package com.acs.analytic.acsAnalytic.utils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

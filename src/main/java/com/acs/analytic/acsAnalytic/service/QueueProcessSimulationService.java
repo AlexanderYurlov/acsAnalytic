@@ -10,6 +10,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.acs.analytic.acsAnalytic.dao.VehicleRepository;
 import com.acs.analytic.acsAnalytic.model.InitialData;
 import com.acs.analytic.acsAnalytic.model.ReservationResult;
 import com.acs.analytic.acsAnalytic.model.SimulationResult;
@@ -24,8 +25,8 @@ import com.acs.analytic.acsAnalytic.service.reservation.ReserveFinder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static com.acs.analytic.acsAnalytic.Utils.round;
-import static com.acs.analytic.acsAnalytic.UtilsCsv.readCsv;
+import static com.acs.analytic.acsAnalytic.utils.Utils.round;
+import static com.acs.analytic.acsAnalytic.utils.UtilsCsv.readCsv;
 
 @Service
 public class QueueProcessSimulationService {
@@ -33,9 +34,11 @@ public class QueueProcessSimulationService {
     public final ObjectMapper om = new ObjectMapper();
 
     private final ReserveFinder reserveFinder;
+    private final VehicleRepository vehicleRepository;
 
-    QueueProcessSimulationService(@Qualifier("simpleReserveFinder") ReserveFinder reserveFinder) {
+    QueueProcessSimulationService(@Qualifier("simpleReserveFinder") ReserveFinder reserveFinder, VehicleRepository vehicleRepository) {
         this.reserveFinder = reserveFinder;
+        this.vehicleRepository = vehicleRepository;
     }
 
     /**
@@ -67,6 +70,7 @@ public class QueueProcessSimulationService {
                 vehicle.setChargedTierId(0);
             }
         }
+        vehicles = vehicleRepository.saveAll(vehicles);
         List<ScheduleData> scheduleDataList = fillScheduleData(vehicles);
 
         long endTime = System.currentTimeMillis();

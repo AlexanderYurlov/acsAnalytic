@@ -16,6 +16,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 @Table(name = "tier_pump")
 @Entity
@@ -32,7 +34,7 @@ public class TierPump {
 
     @Id
     @SequenceGenerator(name = "hibernateSeq", sequenceName = "HIBERNATE_SEQUENCE")
-    @GeneratedValue( strategy = GenerationType.SEQUENCE, generator = "hibernateSeq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernateSeq")
     @Column(name = "id")
     private Long systemId;
 
@@ -55,6 +57,7 @@ public class TierPump {
     Tier tier;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     InitializedData initializedData;
 
 }

@@ -1,4 +1,4 @@
-package com.acs.analytic.acsAnalytic;
+package com.acs.analytic.acsAnalytic.utils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

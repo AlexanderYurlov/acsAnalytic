@@ -16,8 +16,8 @@ import com.acs.analytic.acsAnalytic.model.TierVehicle;
 import com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 
-import static com.acs.analytic.acsAnalytic.Utils.round;
-import static com.acs.analytic.acsAnalytic.UtilsCsv.writeToCSV;
+import static com.acs.analytic.acsAnalytic.utils.Utils.round;
+import static com.acs.analytic.acsAnalytic.utils.UtilsCsv.writeToCSV;
 import static com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType.RR;
 import static com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType.RW;
 

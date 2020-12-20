@@ -10,9 +10,11 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -41,7 +43,7 @@ public class Vehicle {
 
     @Id
     @SequenceGenerator(name = "hibernateSeq", sequenceName = "HIBERNATE_SEQUENCE")
-    @GeneratedValue( strategy = GenerationType.SEQUENCE, generator = "hibernateSeq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernateSeq")
     @Column(name = "id")
     Long systemId;
 
@@ -51,7 +53,6 @@ public class Vehicle {
     /**
      * с колёс/ через запрос
      */
-
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     VehicleRequestType type;
@@ -122,6 +123,7 @@ public class Vehicle {
      * Фактическое время начала зарядки (черновое)
      */
     @JsonIgnore
+    @Transient
     Double draftStartChargeT;
 
     /**
@@ -133,7 +135,8 @@ public class Vehicle {
     /**
      * Фактическое время окончания зарядки (черновое)
      */
-    @Column(name = "draft_compl_t")
+    @JsonIgnore
+    @Transient
     Double draftComplT;
 
     /**
@@ -148,7 +151,9 @@ public class Vehicle {
     @Column(name = "res_compl_t")
     Double resComplT;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "initialized_data_id")
+    @JsonIgnore
     InitializedData initializedData;
 
 }

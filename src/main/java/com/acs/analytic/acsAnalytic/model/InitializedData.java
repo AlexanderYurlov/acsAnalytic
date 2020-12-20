@@ -1,5 +1,7 @@
 package com.acs.analytic.acsAnalytic.model;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +10,6 @@ import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -28,7 +29,7 @@ import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 @Data
 @NoArgsConstructor
 @SuperBuilder
-public class InitializedData {
+public class InitializedData implements Serializable {
 
     public InitializedData(InitialData initialData, TierPumpConf tierPumpConf, List<Vehicle> vehicleList) {
         this.initialData = initialData;
@@ -36,6 +37,16 @@ public class InitializedData {
         List<TierPump> tierPumps = getTierPumpList(tierPumpConf.tierPumpsMap);
         tierPumps.addAll(getTierPumpList(tierPumpConf.sharableTierPumpsMap));
         this.tierPumps = tierPumps;
+
+        for (Tier t : this.initialData.getTiers()) {
+            t.setInitialData(this.initialData);
+        }
+        for (Vehicle v : this.vehicles) {
+            v.setInitializedData(this);
+        }
+        for (TierPump pump : this.tierPumps) {
+            pump.setInitializedData(this);
+        }
     }
 
     private List<TierPump> getTierPumpList(Map<Integer, List<TierPump>> tierPumpsMap) {
@@ -48,7 +59,7 @@ public class InitializedData {
 
     @Id
     @SequenceGenerator(name = "hibernateSeq", sequenceName = "HIBERNATE_SEQUENCE")
-    @GeneratedValue( strategy = GenerationType.SEQUENCE, generator = "hibernateSeq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernateSeq")
     @Column(name = "id")
     Long id;
 
@@ -56,9 +67,9 @@ public class InitializedData {
     InitialData initialData;
 
     @OneToMany(mappedBy = "initializedData", cascade = CascadeType.ALL)
-    List<Vehicle> vehicles;
+    List<Vehicle> vehicles = new ArrayList<>();
 
     @OneToMany(mappedBy = "initializedData", cascade = CascadeType.ALL)
-    List<TierPump> tierPumps;
+    List<TierPump> tierPumps = new ArrayList<>();
 
 }
