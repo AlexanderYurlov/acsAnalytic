@@ -13,6 +13,11 @@ import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 public class Consumer {
 
     /**
+     * id потребителя
+     */
+    Integer id;
+
+    /**
      * с колёс/ через запрос
      */
     VehicleRequestType type;
@@ -63,15 +68,16 @@ public class Consumer {
     Double actComplT;
 
     public Consumer(Vehicle vehicle) {
+        id = vehicle.getId();
         type = vehicle.getType();
-                tierId = vehicle.getTierId();
+        tierId = vehicle.getTierId();
         chargedTierId = vehicle.getChargedTierId();
-                arrT = vehicle.getArrT();
+        arrT = vehicle.getArrT();
         chargT = vehicle.getChargT();
-                earliestArrT = vehicle.getEarliestArrT();
+        earliestArrT = vehicle.getEarliestArrT();
         deadlT = vehicle.getDeadlT();
-                pumpId = vehicle.getPumpId();
+        pumpId = vehicle.getPumpId();
         actStartChargeT = vehicle.getActStartChargeT();
-                actComplT = vehicle.getActComplT();
+        actComplT = vehicle.getActComplT();
     }
 }

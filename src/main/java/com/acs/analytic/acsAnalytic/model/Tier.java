@@ -2,30 +2,31 @@ package com.acs.analytic.acsAnalytic.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Table(name = "tier")
 @Entity
-@Data
+@Getter
+@Setter
 @SuperBuilder
 @NoArgsConstructor
 public class Tier {
 
     @Id
     @SequenceGenerator(name = "hibernateSeq", sequenceName = "HIBERNATE_SEQUENCE")
-    @GeneratedValue( strategy = GenerationType.SEQUENCE, generator = "hibernateSeq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernateSeq")
     @Column(name = "id")
     Long systemId;
 
@@ -54,7 +55,8 @@ public class Tier {
     Integer maxWaitingTime;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
+//    @ManyToOne(fetch = FetchType.LAZY)
+    @Transient
     InitialData initialData;
 
 }

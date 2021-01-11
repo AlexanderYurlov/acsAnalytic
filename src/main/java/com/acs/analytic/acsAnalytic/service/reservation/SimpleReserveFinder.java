@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 import com.acs.analytic.acsAnalytic.model.ReservationResult;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 
-import static com.acs.analytic.acsAnalytic.utils.Utils.round;
 import static com.acs.analytic.acsAnalytic.service.reservation.matrix.MatrixCreatorHelper.prepareListVehicles;
 import static com.acs.analytic.acsAnalytic.service.reservation.matrix.MatrixCreatorHelper.prepareVehicle;
+import static com.acs.analytic.acsAnalytic.utils.Utils.round;
 
 @Service
 public class SimpleReserveFinder implements ReserveFinder {
@@ -41,17 +41,40 @@ public class SimpleReserveFinder implements ReserveFinder {
             ReservationResult result = tryToReserve(combination, remChargeTime, deltaTime, tierId, pumpId);
             if (result.isReserved()) {
                 if (bestResult.getTime() == null || bestResult.getTime() > result.getTime()) {
-                    bestResult = result;
-                    bestResult.activateDraft();
+                    if (checkOptimalResult(bestResult, result)) {
+                        bestResult = result;
+                        bestResult.activateDraft();
 //                    try {
 //                        System.out.println(new ObjectMapper().writeValueAsString(bestResult.getCombination()));
 //                    } catch (JsonProcessingException e) {
 //                        e.printStackTrace();
 //                    }
+                    }
                 }
             }
         }
         return bestResult;
+    }
+
+    private boolean checkOptimalResult(ReservationResult bestResult, ReservationResult result) {
+        if (bestResult.getCombination() == null) {
+            return true;
+        }
+        Double resultSumResComplT = getSumResComplT(result);
+        Double bestResultSumResComplT = getSumResComplT(bestResult);
+        return resultSumResComplT < bestResultSumResComplT;
+    }
+
+    private Double getSumResComplT(ReservationResult result) {
+        if (result.getSumResComplT() != null) {
+            return result.getSumResComplT();
+        }
+        double sumResComplT = 0;
+        for (Vehicle v : result.getCombination()) {
+            sumResComplT = sumResComplT + v.getResComplT();
+        }
+        result.setSumResComplT(sumResComplT);
+        return sumResComplT;
     }
 
     /**
@@ -90,7 +113,7 @@ public class SimpleReserveFinder implements ReserveFinder {
                 return new ReservationResult(false);
             }
         }
-        return new ReservationResult(null, true, currTime, combination);
+        return new ReservationResult(null, true, currTime, null, combination);
     }
 
     /**

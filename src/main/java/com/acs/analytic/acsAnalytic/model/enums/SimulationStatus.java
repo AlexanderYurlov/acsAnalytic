@@ -9,8 +9,20 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum SimulationStatus {
 
-    COMPLETED("COMPLETED"),
-    IN_PROGRESS("IN_PROGRESS");
+    /**
+     * В процессе расчёта
+     */
+    INITIALIZED("INITIALIZED"),
+
+    /**
+     * В процессе расчёта
+     */
+    IN_PROGRESS("IN_PROGRESS"),
+
+    /**
+     * Расчёт завершён
+     */
+    COMPLETED("COMPLETED");
 
     public static final Map<String, SimulationStatus> BY_CODE;
 

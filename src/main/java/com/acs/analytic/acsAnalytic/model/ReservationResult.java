@@ -19,6 +19,8 @@ public class ReservationResult {
 
     Double time;
 
+    Double sumResComplT;
+
     List<Vehicle> combination;
 
     public ReservationResult(boolean reserveStatus) {
@@ -26,7 +28,7 @@ public class ReservationResult {
     }
 
     public void activateDraft() {
-        for (Vehicle vehicle: combination) {
+        for (Vehicle vehicle : combination) {
             vehicle.setActStartChargeT(vehicle.getDraftStartChargeT());
             vehicle.setActComplT(vehicle.getDraftComplT());
         }

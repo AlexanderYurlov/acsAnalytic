@@ -28,7 +28,7 @@ import com.sun.istack.NotNull;
 @AllArgsConstructor
 public class InitialDataController {
 
-    public static final String BASE_PATH = "init_data";
+    public static final String BASE_PATH = "acs/init_data";
     public static final String BY_ID = "/{id}";
     public static final String GET_BY_ID = BASE_PATH + BY_ID;
     public static final String GENERATE_DATA_TEST = BASE_PATH + "/test";

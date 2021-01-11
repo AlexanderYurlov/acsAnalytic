@@ -1,5 +1,8 @@
 package com.acs.analytic.acsAnalytic.controller;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +16,6 @@ import lombok.AllArgsConstructor;
 
 import com.acs.analytic.acsAnalytic.dao.InitializedDataRepository;
 import com.acs.analytic.acsAnalytic.model.InitializedData;
-import com.acs.analytic.acsAnalytic.model.TierPumpConf;
 import com.acs.analytic.acsAnalytic.model.resp.ReportDetailsDataDto;
 import com.acs.analytic.acsAnalytic.service.QueueProcessSimulationService;
 import com.sun.istack.NotNull;
@@ -22,7 +24,7 @@ import com.sun.istack.NotNull;
 @AllArgsConstructor
 public class SimulateController {
 
-    public static final String BASE_PATH = "simulate";
+    public static final String BASE_PATH = "acs/simulate";
     public static final String TEST = BASE_PATH + "/test";
 
     public static final String BY_ID = "/{id}";
@@ -35,15 +37,24 @@ public class SimulateController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ReportDetailsDataDto> simulate(@RequestBody InitializedData initData) {
         InitializedData initializedData = initializedDataRepository.getOne(initData.getId());
-        return ResponseEntity.ok(queueProcessSimulationService.simulate(initializedData.getVehicles(), new TierPumpConf(initializedData.getInitialData(), initializedData.getTierPumps())));
+        return ResponseEntity.ok(queueProcessSimulationService.simulate(initializedData));
     }
 
-    //todo сделать получени
     @GetMapping(GET_BY_ID)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ReportDetailsDataDto> getSimulation(@PathVariable @NotNull Long id) {
         InitializedData initializedData = initializedDataRepository.getOne(id);
-        return ResponseEntity.ok(queueProcessSimulationService.simulate(initializedData.getVehicles(), new TierPumpConf(initializedData.getInitialData(), initializedData.getTierPumps())));
+        return ResponseEntity.ok(new ReportDetailsDataDto(initializedData));
+    }
+
+    @GetMapping(BASE_PATH)
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<ReportDetailsDataDto>> getAllSimulation() {
+        List<InitializedData> initializedData = initializedDataRepository.findAll();
+        List<ReportDetailsDataDto> reportDetailsDataDtoList = initializedData.stream()
+                .map(ReportDetailsDataDto::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(reportDetailsDataDtoList);
     }
 
     @GetMapping(TEST)
