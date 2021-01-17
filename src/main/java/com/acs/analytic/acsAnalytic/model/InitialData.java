@@ -59,8 +59,8 @@ public class InitialData {
     /**
      * Tiers for Pump and Vehicle
      */
-//    @OneToMany(mappedBy = "initialData", fetch = FetchType.EAGER)
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "initialData", fetch = FetchType.EAGER)
+//    @OneToMany(fetch = FetchType.EAGER)
     List<Tier> tiers;
 
 

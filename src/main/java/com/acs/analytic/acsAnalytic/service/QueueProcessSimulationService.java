@@ -1,6 +1,5 @@
 package com.acs.analytic.acsAnalytic.service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -11,7 +10,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.acs.analytic.acsAnalytic.dao.InitializedDataRepository;
-import com.acs.analytic.acsAnalytic.dao.VehicleRepository;
 import com.acs.analytic.acsAnalytic.model.InitialData;
 import com.acs.analytic.acsAnalytic.model.InitializedData;
 import com.acs.analytic.acsAnalytic.model.ReservationResult;
@@ -20,9 +18,7 @@ import com.acs.analytic.acsAnalytic.model.Tier;
 import com.acs.analytic.acsAnalytic.model.TierPumpConf;
 import com.acs.analytic.acsAnalytic.model.TierVehicle;
 import com.acs.analytic.acsAnalytic.model.enums.SimulationStatus;
-import com.acs.analytic.acsAnalytic.model.resp.Consumer;
 import com.acs.analytic.acsAnalytic.model.resp.ReportDetailsDataDto;
-import com.acs.analytic.acsAnalytic.model.resp.ScheduleData;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 import com.acs.analytic.acsAnalytic.service.reservation.ReserveFinder;
 import com.acs.analytic.acsAnalytic.service.reservation.SimpleReserveFinder;
@@ -39,14 +35,11 @@ public class QueueProcessSimulationService {
     public final ObjectMapper om = new ObjectMapper();
 
     private final ReserveFinder reserveFinder;
-    private final VehicleRepository vehicleRepository;
     private final InitializedDataRepository initializedDataRepository;
 
     QueueProcessSimulationService(@Qualifier("simpleReserveFinder") ReserveFinder reserveFinder,
-                                  VehicleRepository vehicleRepository,
                                   InitializedDataRepository initializedDataRepository) {
         this.reserveFinder = reserveFinder;
-        this.vehicleRepository = vehicleRepository;
         this.initializedDataRepository = initializedDataRepository;
     }
 
@@ -63,7 +56,6 @@ public class QueueProcessSimulationService {
         TierPumpConf tierPumpConf = new TierPumpConf(initializedData.getInitialData(), initializedData.getTierPumps());
 
         simulateVehicles(vehicles, tierPumpConf);
-//        vehicles = vehicleRepository.saveAll(vehicles);
 
         Date endTime = new Date();
         System.out.println("Total execution time: " + (endTime.getTime() - startTime.getTime()) + "ms");
@@ -72,10 +64,7 @@ public class QueueProcessSimulationService {
         initializedData.setStartTime(startTime);
         initializedData.setEndTime(endTime);
         initializedData = initializedDataRepository.save(initializedData);
-        List<ScheduleData> scheduleDataList = fillScheduleData(vehicles);
-//        printResult(simulationResult, vehicles);
-//        return vehicles;
-        return new ReportDetailsDataDto(initializedData, scheduleDataList);
+        return new ReportDetailsDataDto(initializedData, vehicles);
     }
 
     private List<Vehicle> simulateVehicles(List<Vehicle> vehicles, TierPumpConf tierPumpConf) {
@@ -99,28 +88,6 @@ public class QueueProcessSimulationService {
             }
         }
         return vehicles;
-    }
-
-    private List<ScheduleData> fillScheduleData(List<Vehicle> vehicles) {
-        Map<Integer, Map<Integer, List<Consumer>>> processedVehiclesMap = new HashMap<>();
-        for (Vehicle vehicle : vehicles) {
-            var tierId = vehicle.getTierId();
-            var pumpId = vehicle.getPumpId();
-            processedVehiclesMap.computeIfAbsent(tierId, k -> new HashMap<>());
-            processedVehiclesMap.get(tierId).computeIfAbsent(pumpId, k -> new ArrayList<>());
-            processedVehiclesMap.get(tierId).get(pumpId).add(new Consumer(vehicle));
-        }
-        List<ScheduleData> scheduleDataList = new ArrayList<>();
-        for (Integer tierId : processedVehiclesMap.keySet()) {
-            for (Integer pumpId : processedVehiclesMap.keySet()) {
-                scheduleDataList.add(ScheduleData.builder()
-                        .tierId(tierId)
-                        .pumpId(pumpId)
-                        .consumers(processedVehiclesMap.get(tierId).get(pumpId))
-                        .build());
-            }
-        }
-        return scheduleDataList;
     }
 
     /**
@@ -287,7 +254,7 @@ public class QueueProcessSimulationService {
     }
 
     public static void main(String[] args) throws JsonProcessingException {
-        var queueProcessSimulationService = new QueueProcessSimulationService(new SimpleReserveFinder(), null, null);
+        var queueProcessSimulationService = new QueueProcessSimulationService(new SimpleReserveFinder(), null);
 
         InitialData initialData = InitialData.builder()
                 .tiers(List.of(

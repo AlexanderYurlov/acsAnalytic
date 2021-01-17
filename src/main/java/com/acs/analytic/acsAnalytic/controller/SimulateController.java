@@ -18,6 +18,7 @@ import com.acs.analytic.acsAnalytic.dao.InitializedDataRepository;
 import com.acs.analytic.acsAnalytic.model.InitializedData;
 import com.acs.analytic.acsAnalytic.model.resp.ReportDetailsDataDto;
 import com.acs.analytic.acsAnalytic.service.QueueProcessSimulationService;
+import com.acs.analytic.acsAnalytic.service.SimulationService;
 import com.sun.istack.NotNull;
 
 @RestController
@@ -30,21 +31,21 @@ public class SimulateController {
     public static final String BY_ID = "/{id}";
     public static final String GET_BY_ID = BASE_PATH + BY_ID;
 
+    private final SimulationService simulationService;
     private final InitializedDataRepository initializedDataRepository;
     private final QueueProcessSimulationService queueProcessSimulationService;
 
     @PostMapping(BASE_PATH)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ReportDetailsDataDto> simulate(@RequestBody InitializedData initData) {
-        InitializedData initializedData = initializedDataRepository.getOne(initData.getId());
-        return ResponseEntity.ok(queueProcessSimulationService.simulate(initializedData));
+        return ResponseEntity.ok(simulationService.simulate(initData));
     }
 
     @GetMapping(GET_BY_ID)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ReportDetailsDataDto> getSimulation(@PathVariable @NotNull Long id) {
-        InitializedData initializedData = initializedDataRepository.getOne(id);
-        return ResponseEntity.ok(new ReportDetailsDataDto(initializedData));
+        ReportDetailsDataDto reportDetailsDataDto = simulationService.getSimulation(id);
+        return ResponseEntity.ok(reportDetailsDataDto);
     }
 
     @GetMapping(BASE_PATH)
