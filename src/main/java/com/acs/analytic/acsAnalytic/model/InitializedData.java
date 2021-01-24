@@ -36,7 +36,6 @@ import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-//todo rename
 public class InitializedData implements Serializable {
 
     public InitializedData(InitialData initialData, TierPumpConf tierPumpConf, List<Vehicle> vehicleList) {

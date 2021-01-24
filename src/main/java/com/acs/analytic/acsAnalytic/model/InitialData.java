@@ -23,6 +23,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
@@ -37,6 +38,7 @@ import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class InitialData {
 
     @PrePersist
@@ -49,9 +51,12 @@ public class InitialData {
 
     @Id
     @SequenceGenerator(name = "hibernateSeq", sequenceName = "HIBERNATE_SEQUENCE")
-    @GeneratedValue( strategy = GenerationType.SEQUENCE, generator = "hibernateSeq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernateSeq")
     @Column(name = "id")
     Long id;
+
+    @Column(name = "name")
+    String name;
 
     /**
      * Common Data (Tiers Data) is actual for AutoTraffic
@@ -60,7 +65,6 @@ public class InitialData {
      * Tiers for Pump and Vehicle
      */
     @OneToMany(mappedBy = "initialData", fetch = FetchType.EAGER)
-//    @OneToMany(fetch = FetchType.EAGER)
     List<Tier> tiers;
 
 
@@ -104,6 +108,7 @@ public class InitialData {
      */
     @Transient
     List<TierVehicle> r;
+
     @Type(type = "jsonb")
     @Column(name = "r", columnDefinition = "jsonb")
     String rStr;
