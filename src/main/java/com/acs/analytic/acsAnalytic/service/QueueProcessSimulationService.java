@@ -8,6 +8,8 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.acs.analytic.acsAnalytic.dao.InitializedDataRepository;
 import com.acs.analytic.acsAnalytic.model.InitialData;
@@ -63,8 +65,8 @@ public class QueueProcessSimulationService {
         initializedData.setStatus(SimulationStatus.COMPLETED);
         initializedData.setStartTime(startTime);
         initializedData.setEndTime(endTime);
-        initializedData = initializedDataRepository.save(initializedData);
-        return new ReportDetailsDataDto(initializedData, vehicles);
+        InitializedData savedInitializedData = initializedDataRepository.save(initializedData);
+        return new ReportDetailsDataDto(savedInitializedData, vehicles);
     }
 
     private List<Vehicle> simulateVehicles(List<Vehicle> vehicles, TierPumpConf tierPumpConf) {

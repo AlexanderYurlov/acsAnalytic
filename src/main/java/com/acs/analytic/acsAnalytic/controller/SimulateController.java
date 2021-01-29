@@ -35,11 +35,11 @@ public class SimulateController {
     private final InitializedDataRepository initializedDataRepository;
     private final QueueProcessSimulationService queueProcessSimulationService;
 
-    @PostMapping(BASE_PATH)
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<ReportDetailsDataDto> simulate(@RequestBody InitializedData initData) {
-        return ResponseEntity.ok(simulationService.simulate(initData));
-    }
+//    @PostMapping(BASE_PATH)
+//    @ResponseStatus(HttpStatus.OK)
+//    public ResponseEntity<ReportDetailsDataDto> simulate(@RequestBody InitializedData initData) {
+//        return ResponseEntity.ok(simulationService.simulate(initData));
+//    }
 
     @GetMapping(GET_BY_ID)
     @ResponseStatus(HttpStatus.OK)

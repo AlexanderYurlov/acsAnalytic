@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -21,8 +20,8 @@ import com.acs.analytic.acsAnalytic.model.InitializedData;
 import com.acs.analytic.acsAnalytic.model.TierPumpConf;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 import com.acs.analytic.acsAnalytic.service.PumpDataGenerationService;
+import com.acs.analytic.acsAnalytic.service.SimulationService;
 import com.acs.analytic.acsAnalytic.service.VehicleDataGenerationService;
-import com.sun.istack.NotNull;
 
 @RestController
 @AllArgsConstructor
@@ -37,34 +36,35 @@ public class InitialDataController {
     private final VehicleDataGenerationService vehicleDataGenerationService;
     private final InitializedDataRepository initializedDataRepository;
     private final InitialDataRepository initialDataRepository;
+    private final SimulationService simulationService;
 
     @PostMapping(BASE_PATH)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<InitializedData> generateInitializedData(@RequestBody InitialData initialData) {
-        initialDataRepository.save(initialData);
+    public ResponseEntity<Void> generateInitializedData(@RequestBody InitialData initialData) {
+//        initialDataRepository.save(initialData);
         TierPumpConf tierPumpConf = pumpDataGenerationService.generate(initialData);
         List<Vehicle> vehicleList = vehicleDataGenerationService.generate(initialData);
-        InitializedData initializedData = initializedDataRepository.save(new InitializedData(initialData, tierPumpConf, vehicleList));
-        return ResponseEntity.ok(initializedData);
+        simulationService.simulate(initialData, tierPumpConf, vehicleList);
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping(BASE_PATH)
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<InitializedData>> getAllInitializedData() {
-        List<InitializedData> list = initializedDataRepository.findAll();
-        return ResponseEntity.ok(list);
-    }
-
-    @GetMapping(GET_BY_ID)
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<InitializedData> getInitializedData(@PathVariable @NotNull Long id) {
-        InitializedData initializedData = initializedDataRepository.getOne(id);
-        return ResponseEntity.ok(initializedData);
-    }
+//    @GetMapping(BASE_PATH)
+//    @ResponseStatus(HttpStatus.OK)
+//    public ResponseEntity<List<InitializedData>> getAllInitializedData() {
+//        List<InitializedData> list = initializedDataRepository.findAll();
+//        return ResponseEntity.ok(list);
+//    }
+//
+//    @GetMapping(GET_BY_ID)
+//    @ResponseStatus(HttpStatus.OK)
+//    public ResponseEntity<InitializedData> getInitializedData(@PathVariable @NotNull Long id) {
+//        InitializedData initializedData = initializedDataRepository.getOne(id);
+//        return ResponseEntity.ok(initializedData);
+//    }
 
     @GetMapping(GENERATE_DATA_TEST)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<InitializedData> generateDataTest() {
+    public ResponseEntity<Void> generateDataTest() {
         InitialData initialData = MockUtils.getInitialData();
         return generateInitializedData(initialData);
     }
