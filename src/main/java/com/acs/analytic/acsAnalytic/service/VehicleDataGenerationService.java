@@ -16,10 +16,10 @@ import com.acs.analytic.acsAnalytic.model.TierVehicle;
 import com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 
-import static com.acs.analytic.acsAnalytic.utils.Utils.round;
-import static com.acs.analytic.acsAnalytic.utils.UtilsCsv.writeToCSV;
 import static com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType.RR;
 import static com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType.RW;
+import static com.acs.analytic.acsAnalytic.utils.Utils.round;
+import static com.acs.analytic.acsAnalytic.utils.UtilsCsv.writeToCSV;
 
 @Slf4j
 @Service
@@ -65,7 +65,7 @@ public class VehicleDataGenerationService {
                 Double arrT = vehicles.get(i - 1).getArrT() + generateIa(initialData.getArrivalRate());
                 vehicle.setArrT(round(arrT));
             }
-            vehicle.setEarliestArrT(generateEArrT());
+            vehicle.setEarliestArrT(generateEArrT(vehicleRequestType));
 
             vehicles.add(vehicle);
 //            log.debug("" + vehicle);
@@ -77,8 +77,13 @@ public class VehicleDataGenerationService {
     /**
      * Generate earliest arrival time, e.g., time required for vehicle to get to the charging station
      * e_arr_t=5+25*rand(Veh_max,1);
+     *
+     * @param vehicleRequestType
      */
-    private Double generateEArrT() {
+    private double generateEArrT(VehicleRequestType vehicleRequestType) {
+        if (vehicleRequestType == RW) {
+            return 0d;
+        }
         return round(MINIMUM_ARRIVAL_TIME + FACTOR_ARRIVAL_TIME * random.nextDouble());
     }
 
