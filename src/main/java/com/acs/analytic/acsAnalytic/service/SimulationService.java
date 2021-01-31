@@ -1,7 +1,10 @@
 package com.acs.analytic.acsAnalytic.service;
 
 import java.util.List;
+import java.util.concurrent.Future;
 
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,13 +26,11 @@ public class SimulationService {
     private final InitializedDataRepository initializedDataRepository;
     private final VehicleRepository vehicleRepository;
 
-//    public ReportDetailsDataDto simulate(InitializedData initData) {
+    @Async
     @Transactional
-    public ReportDetailsDataDto simulate(InitialData initialData, TierPumpConf tierPumpConf, List<Vehicle> vehicleList) {
-//        InitializedData initializedData = initializedDataRepository.save(new InitializedData(initialData, tierPumpConf, vehicleList));
-//        InitializedData initializedData = initializedDataRepository.getOne(initData.getId());
-//        return queueProcessSimulationService.simulate(initializedData);
-        return queueProcessSimulationService.simulate(new InitializedData(initialData, tierPumpConf, vehicleList));
+    public Future<ReportDetailsDataDto> simulate(InitialData initialData, TierPumpConf tierPumpConf, List<Vehicle> vehicleList) {
+        InitializedData initializedData = initializedDataRepository.save(new InitializedData(initialData, tierPumpConf, vehicleList));
+        return new AsyncResult(queueProcessSimulationService.simulate(initializedData));
     }
 
     @Transactional
