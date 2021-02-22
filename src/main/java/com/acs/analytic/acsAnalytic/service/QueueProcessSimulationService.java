@@ -84,6 +84,7 @@ public class QueueProcessSimulationService {
             if (!result) {
                 vehicle.setPumpId(0);
                 vehicle.setChargedTierId(0);
+                vehicle.setSharableState(false);
             }
         }
         return vehicles;
@@ -134,7 +135,7 @@ public class QueueProcessSimulationService {
                 var vehicles = inProgress.get(tierId).get(pumpId);
                 var charging = chargingVeh.get(tierId).get(pumpId);
                 var remCharge = charging != null ? charging.getResComplT() : 0;
-                ReservationResult result = reserveFinder.tryToReserve(veh, vehicles, remCharge, tierId, pumpId);
+                ReservationResult result = reserveFinder.tryToReserve(veh, vehicles, remCharge, tierId, pumpId, sharableState);
                 if (result.isReserved()) {
                     inProgress.get(tierId).put(pumpId, result.getCombination());
                     return true;

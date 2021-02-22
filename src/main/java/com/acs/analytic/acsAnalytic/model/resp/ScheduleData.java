@@ -13,6 +13,9 @@ public class ScheduleData {
 
     Integer pumpId;
     Integer tierId;
+    boolean isShareable;
+    Integer batteryCapacity;
+    Float energyAcceptanceRate;
     List<Consumer> consumers;
 
 }

@@ -42,8 +42,7 @@ import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 public class Vehicle {
 
     @Id
-    @SequenceGenerator(name = "hibernateSeq", sequenceName = "HIBERNATE_SEQUENCE")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernateSeq")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     Long systemId;
 
@@ -156,4 +155,9 @@ public class Vehicle {
     @JsonIgnore
     InitializedData initializedData;
 
+    /**
+     * Используется не родной уровень зарядки(true) или родной (false)
+     */
+    @Column(name = "sharable_state")
+    boolean sharableState;
 }

@@ -67,6 +67,11 @@ public class Consumer {
      */
     Double actComplT;
 
+    /**
+     * Используется не родная зарядка
+     */
+    boolean shareableState;
+
     public Consumer(Vehicle vehicle) {
         id = vehicle.getId();
         type = vehicle.getType();
@@ -79,5 +84,6 @@ public class Consumer {
         pumpId = vehicle.getPumpId();
         actStartChargeT = vehicle.getActStartChargeT();
         actComplT = vehicle.getActComplT();
+        shareableState = vehicle.isSharableState();
     }
 }

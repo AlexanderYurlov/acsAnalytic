@@ -33,8 +33,7 @@ public class TierPump {
     }
 
     @Id
-    @SequenceGenerator(name = "hibernateSeq", sequenceName = "HIBERNATE_SEQUENCE")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernateSeq")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long systemId;
 
@@ -48,7 +47,7 @@ public class TierPump {
      * Разделяемая зарядка?
      */
     @Column(name = "is_shareable")
-    boolean isShareable;
+    Boolean isShareable;
 
     /**
      * Tier

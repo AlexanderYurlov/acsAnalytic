@@ -26,8 +26,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Tier {
 
     @Id
-    @SequenceGenerator(name = "hibernateSeq", sequenceName = "HIBERNATE_SEQUENCE")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernateSeq")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     Long systemId;
 

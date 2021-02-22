@@ -12,9 +12,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType;
-import com.acs.analytic.acsAnalytic.model.resp.Consumer;
-import com.acs.analytic.acsAnalytic.model.resp.ReportDetailsDataDto;
-import com.acs.analytic.acsAnalytic.model.resp.ScheduleData;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 
 public class UtilsCsv {
