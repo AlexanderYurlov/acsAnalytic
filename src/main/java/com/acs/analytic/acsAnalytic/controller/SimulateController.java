@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,7 +28,7 @@ public class SimulateController {
     public static final String TEST = BASE_PATH + "/test";
 
     public static final String BY_ID = "/{id}";
-    public static final String GET_BY_ID = BASE_PATH + BY_ID;
+    public static final String BASE_PATH_ID = BASE_PATH + BY_ID;
 
     private final SimulationService simulationService;
     private final InitializedDataRepository initializedDataRepository;
@@ -41,11 +40,18 @@ public class SimulateController {
 //        return ResponseEntity.ok(simulationService.simulate(initData));
 //    }
 
-    @GetMapping(GET_BY_ID)
+    @GetMapping(BASE_PATH_ID)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ReportDetailsDataDto> getSimulation(@PathVariable @NotNull Long id) {
         ReportDetailsDataDto reportDetailsDataDto = simulationService.getSimulation(id);
         return ResponseEntity.ok(reportDetailsDataDto);
+    }
+
+    @PostMapping(BASE_PATH_ID)
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Void> removeSimulation(@PathVariable @NotNull Long id) {
+        simulationService.removeSimulation(id);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping(BASE_PATH)

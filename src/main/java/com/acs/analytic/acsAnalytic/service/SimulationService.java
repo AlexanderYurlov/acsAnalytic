@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.AllArgsConstructor;
 
+import com.acs.analytic.acsAnalytic.dao.InitialDataRepository;
 import com.acs.analytic.acsAnalytic.dao.InitializedDataRepository;
 import com.acs.analytic.acsAnalytic.dao.VehicleRepository;
 import com.acs.analytic.acsAnalytic.model.InitialData;
@@ -25,6 +26,7 @@ public class SimulationService {
     private final QueueProcessSimulationService queueProcessSimulationService;
     private final InitializedDataRepository initializedDataRepository;
     private final VehicleRepository vehicleRepository;
+    private final InitialDataRepository initialDataRepository;
 
     @Async
     @Transactional
@@ -40,4 +42,8 @@ public class SimulationService {
         return new ReportDetailsDataDto(initializedData, vehicles);
     }
 
+    public void removeSimulation(Long id) {
+        InitializedData initializedData = initializedDataRepository.getOne(id);
+        initializedDataRepository.delete(initializedData);
+    }
 }
