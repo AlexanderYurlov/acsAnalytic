@@ -13,10 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.AllArgsConstructor;
 
 import com.acs.analytic.acsAnalytic.controller.utils.MockUtils;
-import com.acs.analytic.acsAnalytic.dao.InitialDataRepository;
-import com.acs.analytic.acsAnalytic.dao.InitializedDataRepository;
+import com.acs.analytic.acsAnalytic.dto.InitialDataDto;
 import com.acs.analytic.acsAnalytic.model.InitialData;
-import com.acs.analytic.acsAnalytic.model.InitializedData;
 import com.acs.analytic.acsAnalytic.model.TierPumpConf;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 import com.acs.analytic.acsAnalytic.service.PumpDataGenerationService;
@@ -34,14 +32,12 @@ public class InitialDataController {
 
     private final PumpDataGenerationService pumpDataGenerationService;
     private final VehicleDataGenerationService vehicleDataGenerationService;
-    private final InitializedDataRepository initializedDataRepository;
-    private final InitialDataRepository initialDataRepository;
     private final SimulationService simulationService;
 
     @PostMapping(BASE_PATH)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Void> generateInitializedData(@RequestBody InitialData initialData) {
-//        initialDataRepository.save(initialData);
+    public ResponseEntity<Void> generateInitializedData(@RequestBody InitialDataDto dto) {
+        InitialData initialData = new InitialData(dto);
         TierPumpConf tierPumpConf = pumpDataGenerationService.generate(initialData);
         List<Vehicle> vehicleList = vehicleDataGenerationService.generate(initialData);
         simulationService.simulate(initialData, tierPumpConf, vehicleList);
@@ -65,7 +61,7 @@ public class InitialDataController {
     @GetMapping(GENERATE_DATA_TEST)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Void> generateDataTest() {
-        InitialData initialData = MockUtils.getInitialData();
+        InitialDataDto initialData = MockUtils.getInitialDataDto();
         return generateInitializedData(initialData);
     }
 

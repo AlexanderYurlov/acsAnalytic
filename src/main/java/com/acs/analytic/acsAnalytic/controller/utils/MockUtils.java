@@ -3,14 +3,14 @@ package com.acs.analytic.acsAnalytic.controller.utils;
 import java.util.List;
 import java.util.Map;
 
-import com.acs.analytic.acsAnalytic.model.InitialData;
+import com.acs.analytic.acsAnalytic.dto.InitialDataDto;
 import com.acs.analytic.acsAnalytic.model.Tier;
 import com.acs.analytic.acsAnalytic.model.TierVehicle;
 
 public class MockUtils {
 
-    public static InitialData getInitialData() {
-        return InitialData.builder()
+    public static InitialDataDto getInitialDataDto() {
+        return InitialDataDto.builder()
                 .tiers(List.of(
                         Tier.builder()
                                 .id(1)

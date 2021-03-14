@@ -55,9 +55,19 @@ public class ReportDetailsDataDto {
     private List<ScheduleData> scheduleData;
 
     public ReportDetailsDataDto(InitializedData initializedData) {
+
         id = initializedData.getId();
         name = initializedData.getName();
         InitialData initialData = initializedData.getInitialData();
+
+        Map<String, Integer> pumpMap = null;
+        Map<String, Integer> sharablePumpMap = null;
+        try {
+            pumpMap = om.readValue(initialData.getPumpMapStr(), Map.class);
+            sharablePumpMap = om.readValue(initialData.getSharablePumpsStr(), Map.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         inputData = INPUT_DATA_TEMPLATE.replace(ARRIVAL_RATE, initialData.getArrivalRate().toString())
                 .replace(MAX_NUMBER_OF_VEHICLES, initialData.getVehMax().toString())
                 .replace(WALKIN_RATIO, initialData.getRw().toString())
@@ -74,20 +84,24 @@ public class ReportDetailsDataDto {
                         .stream()
                         .map(x -> String.valueOf(x.getMaxWaitingTime()))
                         .collect(Collectors.joining("/")))
-                .replace(PUMPS_PER_TIER, printPumpsPerTier(initialData.getPumpMapStr()))
-                .replace(PUMPS_SHARED_PER_TIER, printPumpsPerTier(initialData.getSharablePumpsStr()));
+                .replace(PUMPS_PER_TIER, printTotalPumpsPerTier(pumpMap, sharablePumpMap))
+                .replace(PUMPS_SHARED_PER_TIER, printPumpsPerTier(sharablePumpMap));
         startTime = initializedData.getStartTime();
         endTime = initializedData.getEndTime();
         status = initializedData.getStatus();
     }
 
-    private String printPumpsPerTier(String pumpMapStr) {
-        Map<String, Integer> pumpMap = null;
-        try {
-            pumpMap = om.readValue(pumpMapStr, Map.class);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+    private String printTotalPumpsPerTier(Map<String, Integer> pumpMap, Map<String, Integer> sharablePumpMap) {
+        Map<String, Integer> totalPump = new HashMap<>();
+        for (String tierId : pumpMap.keySet()) {
+//            todo
+            int quantity = sharablePumpMap.get(tierId) == null ? 0 : sharablePumpMap.get(tierId);
+            totalPump.put(tierId, pumpMap.get(tierId) + quantity);
         }
+        return printPumpsPerTier(totalPump);
+    }
+
+    private String printPumpsPerTier(Map<String, Integer> pumpMap) {
         return pumpMap.values().stream().map(String::valueOf).collect(Collectors.joining("/"));
     }
 

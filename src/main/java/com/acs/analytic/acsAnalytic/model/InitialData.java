@@ -1,5 +1,6 @@
 package com.acs.analytic.acsAnalytic.model;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +12,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -23,6 +23,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import com.acs.analytic.acsAnalytic.dto.InitialDataDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,6 +42,30 @@ import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class InitialData {
 
+    public InitialData(InitialDataDto dto) {
+        this.name = dto.getName();
+        this.tiers = dto.getTiers();
+        this.arrivalRate = dto.getArrivalRate();
+        this.r = dto.getR();
+        this.rStr = dto.getRStr();
+        this.rw = dto.getRw();
+        this.rr = dto.getRr();
+        this.vehMax = dto.getVehMax();
+        if (dto.getPumpMap().size() != dto.getSharablePumps().size()) {
+            throw new RuntimeException("Different quantity of tiers for all pumpMap and sharablePumpMap");
+        }
+        Map<Integer, Integer> pumpMap = new HashMap<>();
+        for (Integer tierId : dto.getPumpMap().keySet()) {
+            int val = dto.getPumpMap().get(tierId) - dto.getSharablePumps().get(tierId);
+            if (val < 0) {
+                throw new RuntimeException("Quantity of Sharable pump more than total pump quantity for tier " + tierId);
+            }
+            pumpMap.put(tierId, val);
+        }
+        this.pumpMap = pumpMap;
+        this.sharablePumps = dto.getSharablePumps();
+    }
+
     @PrePersist
     void prePersist() throws JsonProcessingException {
         ObjectMapper om = new ObjectMapper();
@@ -52,10 +77,10 @@ public class InitialData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    Long id;
+    private Long id;
 
     @Column(name = "name")
-    String name;
+    private String name;
 
     /**
      * Common Data (Tiers Data) is actual for AutoTraffic
@@ -64,7 +89,7 @@ public class InitialData {
      * Tiers for Pump and Vehicle
      */
     @OneToMany(mappedBy = "initialData", fetch = FetchType.EAGER)
-    List<Tier> tiers;
+    private List<Tier> tiers;
 
 
     /**
@@ -75,20 +100,19 @@ public class InitialData {
      * Numbers of pumps per tier: Pump1, …, PumpN;
      */
     @Transient
-    Map<Integer, Integer> pumpMap;
+    private Map<Integer, Integer> pumpMap;
     @Type(type = "jsonb")
     @Column(name = "pump_map", columnDefinition = "jsonb")
-    String pumpMapStr;
-
+    private String pumpMapStr;
 
     /**
      * Numbers of sharable pumps per tier: PS1, …, PSN;
      */
     @Transient
-    Map<Integer, Integer> sharablePumps;
+    private Map<Integer, Integer> sharablePumps;
     @Type(type = "jsonb")
     @Column(name = "sharable_pumps", columnDefinition = "jsonb")
-    String sharablePumpsStr;
+    private String sharablePumpsStr;
 
 
     /**
@@ -100,7 +124,7 @@ public class InitialData {
      * константа зависит от города/мегаполиса/местности
      */
     @Column(name = "arrival_rate")
-    Float arrivalRate;
+    private Float arrivalRate;
 
     /**
      * типы зарядок автомобилей и их соотношение - R ( сумма = 1)
@@ -110,26 +134,26 @@ public class InitialData {
 
     @Type(type = "jsonb")
     @Column(name = "r", columnDefinition = "jsonb")
-    String rStr;
+    private String rStr;
 
     /**
      * Walk-in client ratio (RW + RR = 1)
      */
     @Column(name = "rw")
-    Float rw;
+    private Float rw;
 
     /**
      * Reservation requests ratio (RW + RR = 1)
      */
     @Column(name = "rr")
-    Float rr;
+    private Float rr;
 
     /**
      * Maximum number of simulated: Vehmax.
      * Или может быть расчитана из maximum timeGeneration
      */
     @Column(name = "veh_max")
-    Integer vehMax;
+    private Integer vehMax;
 
     public Tier getTierByIndex(Integer tierIndex) {
         for (Tier tier : tiers) {

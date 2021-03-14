@@ -29,7 +29,7 @@ public class SimpleReserveFinder implements ReserveFinder {
      */
     @Override
     public ReservationResult tryToReserve(Vehicle veh, List<Vehicle> vehicles, double remChargeTime, int tierId, int pumpId, Boolean sharableState) {
-        if (vehicles.size() >= 6) { // условие tier!=1
+        if (vehicles.size() >= 7) { // условие tier!=1
             System.out.println("Too mach combinations!");
             return new ReservationResult(false);
         }

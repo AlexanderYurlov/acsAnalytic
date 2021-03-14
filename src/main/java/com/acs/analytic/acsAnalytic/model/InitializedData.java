@@ -57,9 +57,7 @@ public class InitializedData implements Serializable {
 
         this.status = SimulationStatus.INITIALIZED;
 
-        //todo
-        Random random = new Random();
-        this.name = "test #" + random.nextInt(90000) + 10000;
+        this.name = initialData.getName();
     }
 
     private List<TierPump> getTierPumpList(Map<Integer, List<TierPump>> tierPumpsMap) {
@@ -97,7 +95,6 @@ public class InitializedData implements Serializable {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-//    @Column(name = "type", nullable = false)
     SimulationStatus status;
 
 }
