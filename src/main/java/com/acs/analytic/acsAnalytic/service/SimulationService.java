@@ -26,7 +26,6 @@ public class SimulationService {
     private final QueueProcessSimulationService queueProcessSimulationService;
     private final InitializedDataRepository initializedDataRepository;
     private final VehicleRepository vehicleRepository;
-    private final InitialDataRepository initialDataRepository;
 
     @Async
     @Transactional

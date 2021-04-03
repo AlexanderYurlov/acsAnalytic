@@ -26,7 +26,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static com.acs.analytic.acsAnalytic.utils.Utils.round;
-import static com.acs.analytic.acsAnalytic.utils.UtilsCsv.readCsv;
 import static com.acs.analytic.acsAnalytic.utils.UtilsCsv.writeToCSV;
 
 @Service
@@ -309,37 +308,6 @@ public class QueueProcessSimulationService {
         //todo
         var outVehicles = queueProcessSimulationService.simulateVehicles(vehicles, tierPumpsMap);
         writeToCSV(outVehicles);
-    }
-
-    public ReportDetailsDataDto simulateTest() {
-        var vehicles = readCsv();
-        var initialData = InitialData.builder()
-                .tiers(List.of(
-                        Tier.builder()
-                                .id(1)
-                                .batteryCapacity(14)
-                                .energyAcceptanceRate(3.3f)
-                                .maxWaitingTime(720)
-                                .build(),
-                        Tier.builder()
-                                .id(2)
-                                .batteryCapacity(20)
-                                .energyAcceptanceRate(6.6f)
-                                .maxWaitingTime(600)
-                                .build(),
-                        Tier.builder()
-                                .id(3)
-                                .batteryCapacity(81)
-                                .energyAcceptanceRate(120f)
-                                .maxWaitingTime(300)
-                                .build()
-                        )
-                )
-                .pumpMap(Map.of(1, 21, 2, 9, 3, 2))
-                .build();
-        var tierPumpsMap = new PumpDataGenerationService().generate(initialData);
-
-        return simulate(new InitializedData(initialData, tierPumpsMap, vehicles));
     }
 
 }

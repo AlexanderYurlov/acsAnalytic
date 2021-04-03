@@ -64,10 +64,4 @@ public class SimulateController {
         return ResponseEntity.ok(reportDetailsDataDtoList);
     }
 
-    @GetMapping(TEST)
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<ReportDetailsDataDto> check() {
-        return ResponseEntity.ok(queueProcessSimulationService.simulateTest());
-    }
-
 }
