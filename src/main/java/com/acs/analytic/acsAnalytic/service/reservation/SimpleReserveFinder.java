@@ -28,7 +28,7 @@ public class SimpleReserveFinder implements ReserveFinder {
      * @return результат true/false и комбинация
      */
     @Override
-    public ReservationResult tryToReserve(Vehicle veh, List<Vehicle> vehicles, double remChargeTime, int tierId, int pumpId, Boolean sharableState) {
+    public ReservationResult tryToReserve(Vehicle veh, List<Vehicle> vehicles, double remChargeTime, int tierId, int pumpId) {
         if (vehicles.size() >= 7) { // условие tier!=1
             System.out.println("Too mach combinations!");
             return new ReservationResult(false);
@@ -38,7 +38,7 @@ public class SimpleReserveFinder implements ReserveFinder {
         ReservationResult bestResult = new ReservationResult(false);
         Double deltaTime = veh.getArrT();
         for (List<Vehicle> combination : allCombination) {
-            ReservationResult result = tryToReserve(combination, remChargeTime, deltaTime, tierId, pumpId, sharableState);
+            ReservationResult result = tryToReserve(combination, remChargeTime, deltaTime, tierId, pumpId);
             if (result.isReserved()) {
                 if (bestResult.getTime() == null || bestResult.getTime() > result.getTime()) {
                     if (checkOptimalResult(bestResult, result)) {
@@ -86,7 +86,7 @@ public class SimpleReserveFinder implements ReserveFinder {
      *
      * @return результат попытки.
      */
-    private static ReservationResult tryToReserve(List<Vehicle> combination, double remChargeTime, double deltaTime, int tierId, int pumpId, Boolean sharableState) {
+    private static ReservationResult tryToReserve(List<Vehicle> combination, double remChargeTime, double deltaTime, int tierId, int pumpId) {
         double currTime = remChargeTime;
         for (Vehicle v : combination) {
             Double resEarliestArrT = v.getResEarliestArrT();
@@ -108,7 +108,7 @@ public class SimpleReserveFinder implements ReserveFinder {
                 v.setDraftComplT(round(deltaTime + resComplT));
                 v.setChargedTierId(tierId);
                 v.setPumpId(pumpId);
-                v.setSharableState(sharableState);
+//                v.setSharableState(v.getTierId() != tierId);
                 currTime = resComplT;
             } else {
                 return new ReservationResult(false);
@@ -162,7 +162,7 @@ public class SimpleReserveFinder implements ReserveFinder {
         Vehicle veh = prepareVehicle(14.23d, List.of(151.51d), 12.59d, 249.11);
         List<Vehicle> vehicles = prepareListVehicles();
         int tierId = 1;
-        ReservationResult result = new SimpleReserveFinder().tryToReserve(veh, vehicles, 0d, tierId, 1, false);
+        ReservationResult result = new SimpleReserveFinder().tryToReserve(veh, vehicles, 0d, tierId, 1);
         System.out.println(result.isReserved());
         if (result.isReserved()) {
             for (Vehicle v : result.getCombination()) {

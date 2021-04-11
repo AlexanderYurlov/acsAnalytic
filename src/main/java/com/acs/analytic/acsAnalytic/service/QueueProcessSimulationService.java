@@ -83,7 +83,7 @@ public class QueueProcessSimulationService {
             if (!result) {
                 vehicle.setPumpId(0);
                 vehicle.setChargedTierId(0);
-                vehicle.setSharableState(false);
+//                vehicle.setSharableState(false);
             }
         }
         return vehicles;
@@ -92,19 +92,13 @@ public class QueueProcessSimulationService {
     /**
      * Попытка поставить авто в резерв
      *
-     * @param vehicle - авто, которое пытаемся поставить в резерв
+     * @param veh - авто, которое пытаемся поставить в резерв
      * @param simulationResult - список авто
      * @param tierPumpConf
      *
      * @return результат попытки
      */
-    private boolean tryReserve(Vehicle vehicle, SimulationResult simulationResult, TierPumpConf tierPumpConf) {
-        Boolean result = tryNormReserve(vehicle, simulationResult, tierPumpConf);
-
-        return result;
-    }
-
-    private boolean tryNormReserve(Vehicle veh, SimulationResult simulationResult, TierPumpConf tierPumpConf) {
+    private boolean tryReserve(Vehicle veh, SimulationResult simulationResult, TierPumpConf tierPumpConf) {
 
         int tierId = veh.getTierId();
         boolean result = trySharablePumpsReserve(veh, simulationResult, tierPumpConf, tierId, false);
@@ -134,7 +128,7 @@ public class QueueProcessSimulationService {
                 var vehicles = inProgress.get(tierId).get(pumpId);
                 var charging = chargingVeh.get(tierId).get(pumpId);
                 var remCharge = charging != null ? charging.getResComplT() : 0;
-                ReservationResult result = reserveFinder.tryToReserve(veh, vehicles, remCharge, tierId, pumpId, sharableState);
+                ReservationResult result = reserveFinder.tryToReserve(veh, vehicles, remCharge, tierId, pumpId);
                 if (result.isReserved()) {
                     inProgress.get(tierId).put(pumpId, result.getCombination());
                     return true;

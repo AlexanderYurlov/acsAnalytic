@@ -12,6 +12,7 @@ import lombok.Setter;
 
 import com.acs.analytic.acsAnalytic.model.InitialData;
 import com.acs.analytic.acsAnalytic.model.InitializedData;
+import com.acs.analytic.acsAnalytic.model.Tier;
 import com.acs.analytic.acsAnalytic.model.TierPump;
 import com.acs.analytic.acsAnalytic.model.enums.SimulationStatus;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
@@ -125,9 +126,11 @@ public class ReportDetailsDataDto {
     }
 
     private List<ScheduleData> fillScheduleData(List<TierPump> tierPumps, List<Vehicle> vehicles) {
+        Map<Integer, Tier> tierMap = new HashMap<>();
         Map<Integer, Map<Integer, TierPump>> mapTierPump = new HashMap<>();
         for (TierPump tierPump : tierPumps) {
             var tierId = tierPump.getTier().getId();
+            tierMap.computeIfAbsent(tierId, v -> tierPump.getTier());
             mapTierPump.computeIfAbsent(tierId, k -> new HashMap<>());
             mapTierPump.get(tierId).put(tierPump.getId(), tierPump);
         }
@@ -137,20 +140,20 @@ public class ReportDetailsDataDto {
             var pumpId = vehicle.getPumpId();
             processedVehiclesMap.computeIfAbsent(tierId, k -> new HashMap<>());
             processedVehiclesMap.get(tierId).computeIfAbsent(pumpId, k -> new ArrayList<>());
-            processedVehiclesMap.get(tierId).get(pumpId).add(new Consumer(vehicle));
+            processedVehiclesMap.get(tierId).get(pumpId).add(new Consumer(vehicle, tierMap.get(vehicle.getTierId())));
         }
         List<ScheduleData> scheduleDataList = new ArrayList<>();
         for (Integer tierId : processedVehiclesMap.keySet()) {
             for (Integer pumpId : processedVehiclesMap.get(tierId).keySet()) {
                 boolean isShareable = tierId != 0 && mapTierPump.get(tierId).get(pumpId).getIsShareable();
-                Integer batteryCapacity = tierId != 0 ? mapTierPump.get(tierId).get(pumpId).getTier().getBatteryCapacity() : null;
-                Float energyAcceptanceRate = tierId != 0 ? mapTierPump.get(tierId).get(pumpId).getTier().getEnergyAcceptanceRate() : null;
+//                Integer batteryCapacity = tierId != 0 ? mapTierPump.get(tierId).get(pumpId).getTier().getBatteryCapacity() : null;
+//                Float energyAcceptanceRate = tierId != 0 ? mapTierPump.get(tierId).get(pumpId).getTier().getEnergyAcceptanceRate() : null;
                 scheduleDataList.add(ScheduleData.builder()
                         .tierId(tierId)
                         .pumpId(pumpId)
                         .isShareable(isShareable)
-                        .batteryCapacity(batteryCapacity)
-                        .energyAcceptanceRate(energyAcceptanceRate)
+//                        .batteryCapacity(batteryCapacity)
+//                        .energyAcceptanceRate(energyAcceptanceRate)
                         .consumers(processedVehiclesMap.get(tierId).get(pumpId))
                         .build());
             }

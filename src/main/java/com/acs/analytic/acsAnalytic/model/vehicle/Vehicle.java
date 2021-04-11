@@ -12,7 +12,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -155,9 +154,9 @@ public class Vehicle {
     @JsonIgnore
     InitializedData initializedData;
 
-    /**
-     * Используется не родной уровень зарядки(true) или родной (false)
-     */
-    @Column(name = "sharable_state")
-    boolean sharableState;
+//    /**
+//     * Используется не родной уровень зарядки(true) или родной (false)
+//     */
+//    @Column(name = "sharable_state")
+//    boolean sharableState;
 }

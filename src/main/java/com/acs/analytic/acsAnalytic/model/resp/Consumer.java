@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
+import com.acs.analytic.acsAnalytic.model.Tier;
 import com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 
@@ -72,7 +73,17 @@ public class Consumer {
      */
     boolean shareableState;
 
-    public Consumer(Vehicle vehicle) {
+    /**
+     * energy acceptance rate of tiers in kW
+     */
+    Float energyAcceptanceRate;
+
+    /**
+     * Battery capacity of each tier in kWh
+     */
+    Integer batteryCapacity;
+
+    public Consumer(Vehicle vehicle, Tier tier) {
         id = vehicle.getId();
         type = vehicle.getType();
         tierId = vehicle.getTierId();
@@ -84,6 +95,9 @@ public class Consumer {
         pumpId = vehicle.getPumpId();
         actStartChargeT = vehicle.getActStartChargeT();
         actComplT = vehicle.getActComplT();
-        shareableState = vehicle.isSharableState();
+//        shareableState = vehicle.isSharableState();
+        shareableState = chargedTierId != 0 && !tierId.equals(chargedTierId);
+        energyAcceptanceRate = tier.getEnergyAcceptanceRate();
+        batteryCapacity = tier.getBatteryCapacity();
     }
 }
