@@ -126,14 +126,8 @@ public class ReportDetailsDataDto {
     }
 
     private List<ScheduleData> fillScheduleData(List<TierPump> tierPumps, List<Vehicle> vehicles) {
-        Map<Integer, Tier> tierMap = new HashMap<>();
+        Map<Integer, Tier> tierMap = getTierMap(tierPumps);
         Map<Integer, Map<Integer, TierPump>> mapTierPump = new HashMap<>();
-        for (TierPump tierPump : tierPumps) {
-            var tierId = tierPump.getTier().getId();
-            tierMap.computeIfAbsent(tierId, v -> tierPump.getTier());
-            mapTierPump.computeIfAbsent(tierId, k -> new HashMap<>());
-            mapTierPump.get(tierId).put(tierPump.getId(), tierPump);
-        }
         Map<Integer, Map<Integer, List<Consumer>>> processedVehiclesMap = new HashMap<>();
         for (Vehicle vehicle : vehicles) {
             var tierId = vehicle.getChargedTierId();
@@ -143,22 +137,27 @@ public class ReportDetailsDataDto {
             processedVehiclesMap.get(tierId).get(pumpId).add(new Consumer(vehicle, tierMap.get(vehicle.getTierId())));
         }
         List<ScheduleData> scheduleDataList = new ArrayList<>();
-        for (Integer tierId : processedVehiclesMap.keySet()) {
-            for (Integer pumpId : processedVehiclesMap.get(tierId).keySet()) {
-                boolean isShareable = tierId != 0 && mapTierPump.get(tierId).get(pumpId).getIsShareable();
-//                Integer batteryCapacity = tierId != 0 ? mapTierPump.get(tierId).get(pumpId).getTier().getBatteryCapacity() : null;
-//                Float energyAcceptanceRate = tierId != 0 ? mapTierPump.get(tierId).get(pumpId).getTier().getEnergyAcceptanceRate() : null;
-                scheduleDataList.add(ScheduleData.builder()
-                        .tierId(tierId)
-                        .pumpId(pumpId)
-                        .isShareable(isShareable)
-//                        .batteryCapacity(batteryCapacity)
-//                        .energyAcceptanceRate(energyAcceptanceRate)
-                        .consumers(processedVehiclesMap.get(tierId).get(pumpId))
-                        .build());
-            }
+        for (TierPump tierPump : tierPumps) {
+            var tierId = tierPump.getTier().getId();
+            mapTierPump.computeIfAbsent(tierId, k -> new HashMap<>());
+            mapTierPump.get(tierId).put(tierPump.getId(), tierPump);
+            scheduleDataList.add(ScheduleData.builder()
+                    .tierId(tierId)
+                    .pumpId(tierPump.getId())
+                    .isShareable(tierId != 0 && tierPump.getIsShareable())
+                    .consumers(processedVehiclesMap.get(tierId) != null ? processedVehiclesMap.get(tierId).get(tierPump.getId()) : null)
+                    .build());
         }
         return scheduleDataList;
+    }
+
+    private Map<Integer, Tier> getTierMap(List<TierPump> tierPumps) {
+        Map<Integer, Tier> tierMap = new HashMap<>();
+        for (TierPump tierPump : tierPumps) {
+            var tierId = tierPump.getTier().getId();
+            tierMap.computeIfAbsent(tierId, v -> tierPump.getTier());
+        }
+        return tierMap;
     }
 
 }
