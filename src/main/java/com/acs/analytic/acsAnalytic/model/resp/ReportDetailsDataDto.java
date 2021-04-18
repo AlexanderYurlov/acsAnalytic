@@ -145,7 +145,9 @@ public class ReportDetailsDataDto {
                     .tierId(tierId)
                     .pumpId(tierPump.getId())
                     .isShareable(tierId != 0 && tierPump.getIsShareable())
-                    .consumers(processedVehiclesMap.get(tierId) != null ? processedVehiclesMap.get(tierId).get(tierPump.getId()) : null)
+                    .consumers(processedVehiclesMap.get(tierId) != null ? processedVehiclesMap.get(tierId).get(tierPump.getId()) != null ?
+                            processedVehiclesMap.get(tierId).get(tierPump.getId()) : new ArrayList<>()
+                            : new ArrayList<>())
                     .build());
         }
         return scheduleDataList;
