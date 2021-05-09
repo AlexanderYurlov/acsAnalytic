@@ -141,7 +141,11 @@ public class ReportDetailsDataDto {
             var tierId = tierPump.getTier().getId();
             mapTierPump.computeIfAbsent(tierId, k -> new HashMap<>());
             mapTierPump.get(tierId).put(tierPump.getId(), tierPump);
+            Integer batteryCapacity = tierId != 0 ? tierPump.getTier().getBatteryCapacity() : null;
+            Float energyAcceptanceRate = tierId != 0 ? tierPump.getTier().getEnergyAcceptanceRate() : null;
             scheduleDataList.add(ScheduleData.builder()
+                    .batteryCapacity(batteryCapacity)
+                    .energyAcceptanceRate(energyAcceptanceRate)
                     .tierId(tierId)
                     .pumpId(tierPump.getId())
                     .isShareable(tierId != 0 && tierPump.getIsShareable())

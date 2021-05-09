@@ -73,7 +73,7 @@ public class InitialDataController {
     @GetMapping(GENERATE_DATA_CSV)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ReportDetailsDataDto> check() {
-        InitialDataDto dto = MockUtils.getInitialDataDto();
+        InitialDataDto dto = csvReadService.getInitialDataDto();
         InitialData initialData = new InitialData(dto);
         TierPumpConf tierPumpConf = pumpDataGenerationService.generate(initialData);
         List<Vehicle> vehicleList = csvReadService.read();

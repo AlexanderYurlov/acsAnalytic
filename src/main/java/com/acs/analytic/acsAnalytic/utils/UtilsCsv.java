@@ -18,11 +18,12 @@ public class UtilsCsv {
 
 
     public static List<Vehicle> readCsv() {
-        final String CSV_SEPARATOR = "\t";
+//        final String CSV_SEPARATOR = "\t";
+        final String CSV_SEPARATOR = ",";
         List<Vehicle> vehicles = new ArrayList<>();
 
         try {
-            BufferedReader reader = new BufferedReader(new FileReader("test1.csv"));
+            BufferedReader reader = new BufferedReader(new FileReader("Check_12_50,20,30_2,7,0.csv"));
 
             // skip first string
             reader.readLine();

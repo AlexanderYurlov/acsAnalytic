@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import com.acs.analytic.acsAnalytic.model.InitialData;
+import com.acs.analytic.acsAnalytic.dto.InitialDataDto;
 import com.acs.analytic.acsAnalytic.model.Tier;
 import com.acs.analytic.acsAnalytic.model.TierVehicle;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
@@ -20,8 +20,9 @@ public class CsvReadService {
         return vehicles;
     }
 
-    public InitialData getInitialData() {
-        return InitialData.builder()
+    public InitialDataDto getInitialDataDto() {
+        return InitialDataDto.builder()
+                .name("test_csv1")
                 .tiers(List.of(
                         Tier.builder()
                                 .id(1)
@@ -43,26 +44,27 @@ public class CsvReadService {
                                 .build()
                         )
                 )
-                .pumpMap(Map.of(1, 21, 2, 9, 3, 2))
-                .sharablePumps(Map.of(1, 0, 2, 2, 3, 2))
-                .name("test_csv")
-                .vehMax(999)
+                .vehMax(1000)
+                .rw(0.23f)
+                .rr(0.77f)
                 .r(List.of(
                         TierVehicle.builder()
-                                .vehicleRatio(0.4f)
+                                .vehicleRatio(.45f)
                                 .tierIndex(1)
                                 .build(),
                         TierVehicle.builder()
-                                .vehicleRatio(0.5f)
+                                .vehicleRatio(.33f)
                                 .tierIndex(2)
                                 .build(),
                         TierVehicle.builder()
-                                .vehicleRatio(0.1f)
+                                .vehicleRatio(.22f)
                                 .tierIndex(3)
                                 .build()
                         )
                 )
-                .arrivalRate(12f)
+                .pumpMap(Map.of(1, 21, 2, 9, 3, 2))
+                .sharablePumps(Map.of(1, 0, 2, 2, 3, 2))
+                .arrivalRate(14f)
                 .build();
     }
 

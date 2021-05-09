@@ -33,7 +33,7 @@ public class MockUtils {
                                 .build()
                         )
                 )
-                .vehMax(999)
+                .vehMax(1000)
                 .rw(0.23f)
                 .rr(0.77f)
                 .r(List.of(
