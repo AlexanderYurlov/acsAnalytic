@@ -20,8 +20,9 @@ import org.hibernate.annotations.TypeDef;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import com.acs.analytic.acsAnalytic.model.InitializedData;
 import com.acs.analytic.acsAnalytic.model.enums.VehicleRequestType;
@@ -34,7 +35,8 @@ import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 )
 @Table(name = "vehicle")
 @Entity
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -154,9 +156,29 @@ public class Vehicle {
     @JsonIgnore
     InitializedData initializedData;
 
-//    /**
-//     * Используется не родной уровень зарядки(true) или родной (false)
-//     */
-//    @Column(name = "sharable_state")
-//    boolean sharableState;
+    @Override
+    public String toString() {
+        return "Vehicle{" +
+                "systemId=" + systemId +
+                ", id=" + id +
+                ", type=" + type +
+                ", tierId=" + tierId +
+                ", chargedTierId=" + chargedTierId +
+                ", arrT=" + arrT +
+                ", chargT=" + chargT +
+                ", earliestArrT=" + earliestArrT +
+                ", resEarliestArrT=" + resEarliestArrT +
+                ", deadlT=" + deadlT +
+                ", resDeadlT=" + resDeadlT +
+                ", pumpId=" + pumpId +
+                ", actStartChargeT=" + actStartChargeT +
+                ", draftStartChargeT=" + draftStartChargeT +
+                ", actComplT=" + actComplT +
+                ", draftComplT=" + draftComplT +
+                ", resStartChargeT=" + resStartChargeT +
+                ", resComplT=" + resComplT +
+                ", initializedData=" + initializedData.getId() +
+                '}';
+    }
+
 }

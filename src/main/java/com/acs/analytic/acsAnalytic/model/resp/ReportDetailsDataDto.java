@@ -122,7 +122,19 @@ public class ReportDetailsDataDto {
 
     public ReportDetailsDataDto(InitializedData initializedData, List<Vehicle> vehicles) {
         this(initializedData);
-        scheduleData = fillScheduleData(initializedData.getTierPumps(), vehicles);
+        scheduleData = fillScheduleData(withZeroPump(initializedData.getTierPumps()), vehicles);
+    }
+
+    private List<TierPump> withZeroPump(List<TierPump> tierPumps) {
+        tierPumps.add(TierPump.builder()
+                .isShareable(false)
+                .tier(Tier.builder()
+                        .id(0)
+                        .batteryCapacity(0)
+                        .energyAcceptanceRate(0f)
+                        .build())
+                .build());
+        return tierPumps;
     }
 
     private List<ScheduleData> fillScheduleData(List<TierPump> tierPumps, List<Vehicle> vehicles) {
@@ -131,6 +143,9 @@ public class ReportDetailsDataDto {
         Map<Integer, Map<Integer, List<Consumer>>> processedVehiclesMap = new HashMap<>();
         for (Vehicle vehicle : vehicles) {
             var tierId = vehicle.getChargedTierId();
+            if (tierId == 0) {
+                System.out.println("!!! " + vehicle);
+            }
             var pumpId = vehicle.getPumpId();
             processedVehiclesMap.computeIfAbsent(tierId, k -> new HashMap<>());
             processedVehiclesMap.get(tierId).computeIfAbsent(pumpId, k -> new ArrayList<>());
