@@ -143,9 +143,6 @@ public class ReportDetailsDataDto {
         Map<Integer, Map<Integer, List<Consumer>>> processedVehiclesMap = new HashMap<>();
         for (Vehicle vehicle : vehicles) {
             var tierId = vehicle.getChargedTierId();
-            if (tierId == 0) {
-                System.out.println("!!! " + vehicle);
-            }
             var pumpId = vehicle.getPumpId();
             processedVehiclesMap.computeIfAbsent(tierId, k -> new HashMap<>());
             processedVehiclesMap.get(tierId).computeIfAbsent(pumpId, k -> new ArrayList<>());
