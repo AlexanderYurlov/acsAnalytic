@@ -11,7 +11,7 @@ public class MockUtils {
 
     public static InitialDataDto getInitialDataDto() {
         return InitialDataDto.builder()
-                .name("test_csv")
+                .name("Check_10_50,30,20_0,0,0.csv")
                 .tiers(List.of(
                         Tier.builder()
                                 .id(1)

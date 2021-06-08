@@ -22,49 +22,49 @@ public class CsvReadService {
 
     public InitialDataDto getInitialDataDto() {
         return InitialDataDto.builder()
-                .name("test_csv1")
+                .name("Check_10_50,30,20_0,0,0.csv")
                 .tiers(List.of(
                         Tier.builder()
                                 .id(1)
                                 .batteryCapacity(14)
                                 .energyAcceptanceRate(3.3f)
-                                .maxWaitingTime(720)
+                                .maxWaitingTime(480)
                                 .build(),
                         Tier.builder()
                                 .id(2)
                                 .batteryCapacity(20)
                                 .energyAcceptanceRate(6.6f)
-                                .maxWaitingTime(600)
+                                .maxWaitingTime(300)
                                 .build(),
                         Tier.builder()
                                 .id(3)
                                 .batteryCapacity(81)
                                 .energyAcceptanceRate(120f)
-                                .maxWaitingTime(300)
+                                .maxWaitingTime(120)
                                 .build()
                         )
                 )
                 .vehMax(1000)
-                .rw(0.23f)
-                .rr(0.77f)
+                .rw(0.0f)
+                .rr(1.0f)
                 .r(List.of(
                         TierVehicle.builder()
-                                .vehicleRatio(.45f)
+                                .vehicleRatio(.5f)
                                 .tierIndex(1)
                                 .build(),
                         TierVehicle.builder()
-                                .vehicleRatio(.33f)
+                                .vehicleRatio(.3f)
                                 .tierIndex(2)
                                 .build(),
                         TierVehicle.builder()
-                                .vehicleRatio(.22f)
+                                .vehicleRatio(.2f)
                                 .tierIndex(3)
                                 .build()
                         )
                 )
                 .pumpMap(Map.of(1, 21, 2, 9, 3, 2))
-                .sharablePumps(Map.of(1, 0, 2, 2, 3, 2))
-                .arrivalRate(14f)
+                .sharablePumps(Map.of(1, 0, 2, 0, 3, 0))
+                .arrivalRate(10f)
                 .build();
     }
 

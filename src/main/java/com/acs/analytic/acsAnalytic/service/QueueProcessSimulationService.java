@@ -179,7 +179,7 @@ public class QueueProcessSimulationService {
      */
     private void resetTime(Vehicle veh, Double deltaTime) {
         var resEarliestArrT = veh.getArrT() + veh.getEarliestArrT() - deltaTime;
-        var resDeadlT = resEarliestArrT + veh.getDeadlT();
+        var resDeadlT = veh.getArrT() + veh.getDeadlT() - deltaTime;
         var resStartChargeT = veh.getActStartChargeT() - deltaTime;
         var resComplT = veh.getActComplT() - deltaTime;
         veh.setResEarliestArrT(round(resEarliestArrT));
