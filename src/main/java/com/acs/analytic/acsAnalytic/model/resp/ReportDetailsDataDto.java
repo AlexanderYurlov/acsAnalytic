@@ -1,6 +1,7 @@
 package com.acs.analytic.acsAnalytic.model.resp;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -18,8 +19,6 @@ import com.acs.analytic.acsAnalytic.model.enums.SimulationStatus;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import static com.acs.analytic.acsAnalytic.utils.Utils.round;
 
 @Getter
 @Setter
@@ -61,8 +60,8 @@ public class ReportDetailsDataDto {
         name = initializedData.getName();
         InitialData initialData = initializedData.getInitialData();
 
-        Map<String, Integer> pumpMap = null;
-        Map<String, Integer> sharablePumpMap = null;
+        Map<String, Integer> pumpMap;
+        Map<String, Integer> sharablePumpMap;
         try {
             pumpMap = om.readValue(initialData.getPumpMapStr(), Map.class);
             sharablePumpMap = om.readValue(initialData.getSharablePumpsStr(), Map.class);
@@ -107,16 +106,16 @@ public class ReportDetailsDataDto {
     }
 
     private String printTierRatio(InitialData initialData) {
-        Map<String, Integer> pumpMap = null;
+        List<Map> tierVehicles = null;
         try {
-            pumpMap = om.readValue(initialData.getPumpMapStr(), Map.class);
+            tierVehicles = om.readValue(initialData.getRStr(), List.class);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        assert pumpMap != null;
-        Integer totalPumps = pumpMap.values().stream().reduce(0, Integer::sum);
+        assert tierVehicles != null;
 
-        return pumpMap.values().stream().map(x -> String.valueOf(round(x / (double) totalPumps, 2))).collect(Collectors.joining("/"));
+        return tierVehicles.stream().sorted(Comparator.comparing(t -> ((Integer) t.get("tierIndex"))))
+                .map(t -> t.get("vehicleRatio").toString()).collect(Collectors.joining("/"));
 
     }
 
