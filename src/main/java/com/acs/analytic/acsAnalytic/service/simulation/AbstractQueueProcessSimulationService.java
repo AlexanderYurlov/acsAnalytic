@@ -1,4 +1,4 @@
-package com.acs.analytic.acsAnalytic.service;
+package com.acs.analytic.acsAnalytic.service.simulation;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -6,10 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
-import com.acs.analytic.acsAnalytic.dao.InitializedDataRepository;
 import com.acs.analytic.acsAnalytic.model.InitialData;
 import com.acs.analytic.acsAnalytic.model.InitializedData;
 import com.acs.analytic.acsAnalytic.model.ReservationResult;
@@ -20,6 +16,8 @@ import com.acs.analytic.acsAnalytic.model.TierVehicle;
 import com.acs.analytic.acsAnalytic.model.enums.SimulationStatus;
 import com.acs.analytic.acsAnalytic.model.resp.ReportDetailsDataDto;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
+import com.acs.analytic.acsAnalytic.service.PumpDataGenerationService;
+import com.acs.analytic.acsAnalytic.service.VehicleDataGenerationService;
 import com.acs.analytic.acsAnalytic.service.reservation.ReserveFinder;
 import com.acs.analytic.acsAnalytic.service.reservation.SimpleReserveFinder;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -28,19 +26,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.acs.analytic.acsAnalytic.utils.Utils.round;
 import static com.acs.analytic.acsAnalytic.utils.UtilsCsv.writeToCSV;
 
-@Service
-public class QueueProcessSimulationService {
+public abstract class AbstractQueueProcessSimulationService {
 
     public final ObjectMapper om = new ObjectMapper();
 
-    private final ReserveFinder reserveFinder;
-    private final InitializedDataRepository initializedDataRepository;
-
-    QueueProcessSimulationService(@Qualifier("simpleReserveFinder") ReserveFinder reserveFinder,
-                                  InitializedDataRepository initializedDataRepository) {
-        this.reserveFinder = reserveFinder;
-        this.initializedDataRepository = initializedDataRepository;
-    }
+    protected abstract ReserveFinder getReserveFinder();
 
     /**
      * Запуск процесса симуляции
@@ -65,7 +55,7 @@ public class QueueProcessSimulationService {
         return new ReportDetailsDataDto(initializedData, vehicles);
     }
 
-    private List<Vehicle> simulateVehicles(List<Vehicle> vehicles, TierPumpConf tierPumpConf) {
+    protected List<Vehicle> simulateVehicles(List<Vehicle> vehicles, TierPumpConf tierPumpConf) {
 
         SimulationResult simulationResult = new SimulationResult(tierPumpConf);
 
@@ -128,7 +118,7 @@ public class QueueProcessSimulationService {
                 var vehicles = inProgress.get(tierId).get(pumpId);
                 var charging = chargingVeh.get(tierId).get(pumpId);
                 var remCharge = charging != null ? charging.getResComplT() : 0;
-                ReservationResult result = reserveFinder.tryToReserve(veh, vehicles, remCharge, tierId, pumpId);
+                ReservationResult result = getReserveFinder().tryToReserve(veh, vehicles, remCharge, tierId, pumpId);
                 if (result.isReserved()) {
                     inProgress.get(tierId).put(pumpId, result.getCombination());
                     return true;
@@ -247,7 +237,7 @@ public class QueueProcessSimulationService {
     }
 
     public static void main(String[] args) throws JsonProcessingException {
-        var queueProcessSimulationService = new QueueProcessSimulationService(new SimpleReserveFinder(), null);
+        var queueProcessSimulationService = new QueueProcessSimulationService(new SimpleReserveFinder());
 
         InitialData initialData = InitialData.builder()
                 .tiers(List.of(

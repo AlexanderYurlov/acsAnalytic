@@ -64,7 +64,7 @@ public class Vehicle {
     Integer tierId;
 
     /**
-     * Зарядка используемая по умолчанию
+     * Зарядка используемая по факту
      */
     @Column(name = "charged_tier_id")
     Integer chargedTierId;

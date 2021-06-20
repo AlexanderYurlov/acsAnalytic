@@ -1,5 +1,6 @@
-package com.acs.analytic.acsAnalytic.service;
+package com.acs.analytic.acsAnalytic.service.simulation;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -10,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.AllArgsConstructor;
 
-import com.acs.analytic.acsAnalytic.dao.InitialDataRepository;
 import com.acs.analytic.acsAnalytic.dao.InitializedDataRepository;
 import com.acs.analytic.acsAnalytic.dao.VehicleRepository;
 import com.acs.analytic.acsAnalytic.model.InitialData;
@@ -24,6 +24,7 @@ import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 public class SimulationService {
 
     private final QueueProcessSimulationService queueProcessSimulationService;
+    private final QueueProcessUnoptimizedSimulationService queueProcessUnoptimizedSimulationService;
     private final InitializedDataRepository initializedDataRepository;
     private final VehicleRepository vehicleRepository;
 
@@ -44,5 +45,31 @@ public class SimulationService {
     public void removeSimulation(Long id) {
         InitializedData initializedData = initializedDataRepository.getOne(id);
         initializedDataRepository.delete(initializedData);
+    }
+
+    @Transactional
+    public ReportDetailsDataDto getUnoptimizedSimulation(Long id) {
+        InitializedData initializedData = initializedDataRepository.getOne(id);
+        return queueProcessUnoptimizedSimulationService.simulate(prepareData(initializedData));
+    }
+
+    private InitializedData prepareData(InitializedData initializedData) {
+        InitializedData initData = new InitializedData();
+        List<Vehicle> vehicles = new ArrayList<>();
+        for (Vehicle vehicle : initializedData.getVehicles()) {
+            Vehicle veh = new Vehicle();
+            veh.setId(vehicle.getId());
+            veh.setTierId(vehicle.getTierId());
+            veh.setType(vehicle.getType());
+            veh.setArrT(vehicle.getArrT());
+            veh.setDeadlT(vehicle.getDeadlT());
+            veh.setChargT(vehicle.getChargT());
+            veh.setEarliestArrT(vehicle.getEarliestArrT());
+            vehicles.add(veh);
+        }
+        initData.setVehicles(vehicles);
+        initData.setTierPumps(initializedData.getTierPumps());
+        initData.setInitialData(initializedData.getInitialData());
+        return initData;
     }
 }

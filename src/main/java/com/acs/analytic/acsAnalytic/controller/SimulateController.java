@@ -16,8 +16,8 @@ import lombok.AllArgsConstructor;
 import com.acs.analytic.acsAnalytic.dao.InitializedDataRepository;
 import com.acs.analytic.acsAnalytic.model.InitializedData;
 import com.acs.analytic.acsAnalytic.model.resp.ReportDetailsDataDto;
-import com.acs.analytic.acsAnalytic.service.QueueProcessSimulationService;
-import com.acs.analytic.acsAnalytic.service.SimulationService;
+import com.acs.analytic.acsAnalytic.service.simulation.QueueProcessSimulationService;
+import com.acs.analytic.acsAnalytic.service.simulation.SimulationService;
 import com.sun.istack.NotNull;
 
 @RestController
@@ -29,6 +29,8 @@ public class SimulateController {
 
     public static final String BY_ID = "/{id}";
     public static final String BASE_PATH_ID = BASE_PATH + BY_ID;
+
+    public static final String BASE_PATH_UNOPTIMIZED_ID = BASE_PATH + "/unoptimized" + BY_ID;
 
     private final SimulationService simulationService;
     private final InitializedDataRepository initializedDataRepository;
@@ -44,6 +46,13 @@ public class SimulateController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ReportDetailsDataDto> getSimulation(@PathVariable @NotNull Long id) {
         ReportDetailsDataDto reportDetailsDataDto = simulationService.getSimulation(id);
+        return ResponseEntity.ok(reportDetailsDataDto);
+    }
+
+    @GetMapping(BASE_PATH_UNOPTIMIZED_ID)
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<ReportDetailsDataDto> getUnoptimizedSimulation(@PathVariable @NotNull Long id) {
+        ReportDetailsDataDto reportDetailsDataDto = simulationService.getUnoptimizedSimulation(id);
         return ResponseEntity.ok(reportDetailsDataDto);
     }
 

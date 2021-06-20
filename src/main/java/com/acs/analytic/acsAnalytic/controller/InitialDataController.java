@@ -15,13 +15,12 @@ import lombok.AllArgsConstructor;
 import com.acs.analytic.acsAnalytic.controller.utils.MockUtils;
 import com.acs.analytic.acsAnalytic.dto.InitialDataDto;
 import com.acs.analytic.acsAnalytic.model.InitialData;
-import com.acs.analytic.acsAnalytic.model.InitializedData;
 import com.acs.analytic.acsAnalytic.model.TierPumpConf;
 import com.acs.analytic.acsAnalytic.model.resp.ReportDetailsDataDto;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 import com.acs.analytic.acsAnalytic.service.CsvReadService;
 import com.acs.analytic.acsAnalytic.service.PumpDataGenerationService;
-import com.acs.analytic.acsAnalytic.service.SimulationService;
+import com.acs.analytic.acsAnalytic.service.simulation.SimulationService;
 import com.acs.analytic.acsAnalytic.service.VehicleDataGenerationService;
 
 @RestController
