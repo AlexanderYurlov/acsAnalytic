@@ -25,10 +25,15 @@ public class UnoptimizedReserveFinder extends AbstractReserveFinder {
     }
 
     @Override
-    protected ReservationResult updateBestResult(ReservationResult bestResult, ReservationResult result) {
-        if (bestResult.getTime() == null || bestResult.getTime() > result.getTime()) {
-            bestResult = result;
-            bestResult.activateDraft();
+    protected ReservationResult updateBestResult(ReservationResult bestResult, List<List<Vehicle>> allCombination,
+                                                 double remChargeTime, Double deltaTime, int tierId, int pumpId) {
+        for (List<Vehicle> combination : allCombination) {
+            ReservationResult result = tryToReserve(combination, remChargeTime, deltaTime, tierId, pumpId);
+            if (result.isReserved()) {
+                bestResult = result;
+                bestResult.activateDraft();
+                return bestResult;
+            }
         }
         return bestResult;
     }

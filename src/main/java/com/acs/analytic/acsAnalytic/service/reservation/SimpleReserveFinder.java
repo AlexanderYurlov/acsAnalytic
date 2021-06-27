@@ -35,16 +35,22 @@ public class SimpleReserveFinder extends AbstractReserveFinder {
     }
 
     @Override
-    protected ReservationResult updateBestResult(ReservationResult bestResult, ReservationResult result) {
-        if (bestResult.getTime() == null || bestResult.getTime() > result.getTime()) {
-            if (checkOptimalResult(bestResult, result)) {
-                bestResult = result;
-                bestResult.activateDraft();
+    protected ReservationResult updateBestResult(ReservationResult bestResult, List<List<Vehicle>> allCombination,
+                                                 double remChargeTime, Double deltaTime, int tierId, int pumpId) {
+        for (List<Vehicle> combination : allCombination) {
+            ReservationResult result = tryToReserve(combination, remChargeTime, deltaTime, tierId, pumpId);
+            if (result.isReserved()) {
+                if (bestResult.getTime() == null || bestResult.getTime() > result.getTime()) {
+                    if (checkOptimalResult(bestResult, result)) {
+                        bestResult = result;
+                        bestResult.activateDraft();
 //                    try {
 //                        System.out.println(new ObjectMapper().writeValueAsString(bestResult.getCombination()));
 //                    } catch (JsonProcessingException e) {
 //                        e.printStackTrace();
 //                    }
+                    }
+                }
             }
         }
         return bestResult;

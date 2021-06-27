@@ -11,7 +11,7 @@ public abstract class AbstractReserveFinder implements ReserveFinder {
 
     protected abstract List<List<Vehicle>> getAllCombination(Vehicle veh, List<Vehicle> vehicles);
 
-    protected abstract ReservationResult updateBestResult(ReservationResult bestResult, ReservationResult result);
+    protected abstract ReservationResult updateBestResult(ReservationResult bestResult, List<List<Vehicle>> allCombination, double remChargeTime, Double deltaTime, int tierId, int pumpId);
 
     /**
      * 1. Перебор всех комбинаций.
@@ -34,13 +34,7 @@ public abstract class AbstractReserveFinder implements ReserveFinder {
 
         ReservationResult bestResult = new ReservationResult(false);
         Double deltaTime = veh.getArrT();
-        for (List<Vehicle> combination : allCombination) {
-            ReservationResult result = tryToReserve(combination, remChargeTime, deltaTime, tierId, pumpId);
-            if (result.isReserved()) {
-                bestResult = updateBestResult(bestResult, result);
-            }
-        }
-        return bestResult;
+        return updateBestResult(bestResult, allCombination, remChargeTime, deltaTime, tierId, pumpId);
     }
 
     /**
@@ -52,7 +46,7 @@ public abstract class AbstractReserveFinder implements ReserveFinder {
      *
      * @return результат попытки.
      */
-    private static ReservationResult tryToReserve(List<Vehicle> combination, double remChargeTime, double deltaTime, int tierId, int pumpId) {
+    public ReservationResult tryToReserve(List<Vehicle> combination, double remChargeTime, double deltaTime, int tierId, int pumpId) {
         double currTime = remChargeTime;
         for (Vehicle v : combination) {
             Double resEarliestArrT = v.getResEarliestArrT();
