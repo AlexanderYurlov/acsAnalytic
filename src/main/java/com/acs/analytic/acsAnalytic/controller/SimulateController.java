@@ -42,14 +42,15 @@ public class SimulateController {
 //        return ResponseEntity.ok(simulationService.simulate(initData));
 //    }
 
-    @GetMapping(BASE_PATH_ID)
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<ReportDetailsDataDto> getSimulation(@PathVariable @NotNull Long id) {
-        ReportDetailsDataDto reportDetailsDataDto = simulationService.getSimulation(id);
-        return ResponseEntity.ok(reportDetailsDataDto);
-    }
+//    @GetMapping(BASE_PATH_ID)
+//    @ResponseStatus(HttpStatus.OK)
+//    public ResponseEntity<ReportDetailsDataDto> getSimulation(@PathVariable @NotNull Long id) {
+//        ReportDetailsDataDto reportDetailsDataDto = simulationService.getSimulation(id);
+//        return ResponseEntity.ok(reportDetailsDataDto);
+//    }
 
-    @GetMapping(BASE_PATH_UNOPTIMIZED_ID)
+        @GetMapping(BASE_PATH_ID)
+//    @GetMapping(BASE_PATH_UNOPTIMIZED_ID)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ReportDetailsDataDto> getUnoptimizedSimulation(@PathVariable @NotNull Long id) {
         ReportDetailsDataDto reportDetailsDataDto = simulationService.getUnoptimizedSimulation(id);

@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.acs.analytic.acsAnalytic.model.ReservationResult;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 
 @Service
@@ -21,6 +22,15 @@ public class UnoptimizedReserveFinder extends AbstractReserveFinder {
             result.add(newList);
         }
         return result;
+    }
+
+    @Override
+    protected ReservationResult updateBestResult(ReservationResult bestResult, ReservationResult result) {
+        if (bestResult.getTime() == null || bestResult.getTime() > result.getTime()) {
+            bestResult = result;
+            bestResult.activateDraft();
+        }
+        return bestResult;
     }
 
     public static void main(String[] args) {

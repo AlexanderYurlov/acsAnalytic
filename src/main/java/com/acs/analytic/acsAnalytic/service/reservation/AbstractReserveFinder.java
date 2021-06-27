@@ -11,6 +11,8 @@ public abstract class AbstractReserveFinder implements ReserveFinder {
 
     protected abstract List<List<Vehicle>> getAllCombination(Vehicle veh, List<Vehicle> vehicles);
 
+    protected abstract ReservationResult updateBestResult(ReservationResult bestResult, ReservationResult result);
+
     /**
      * 1. Перебор всех комбинаций.
      * 2. Поочерёдно для каждой комбинации пытаемся все авто уместить в очередь.
@@ -35,41 +37,10 @@ public abstract class AbstractReserveFinder implements ReserveFinder {
         for (List<Vehicle> combination : allCombination) {
             ReservationResult result = tryToReserve(combination, remChargeTime, deltaTime, tierId, pumpId);
             if (result.isReserved()) {
-                if (bestResult.getTime() == null || bestResult.getTime() > result.getTime()) {
-                    if (checkOptimalResult(bestResult, result)) {
-                        bestResult = result;
-                        bestResult.activateDraft();
-//                    try {
-//                        System.out.println(new ObjectMapper().writeValueAsString(bestResult.getCombination()));
-//                    } catch (JsonProcessingException e) {
-//                        e.printStackTrace();
-//                    }
-                    }
-                }
+                bestResult = updateBestResult(bestResult, result);
             }
         }
         return bestResult;
-    }
-
-    private boolean checkOptimalResult(ReservationResult bestResult, ReservationResult result) {
-        if (bestResult.getCombination() == null) {
-            return true;
-        }
-        Double resultSumResComplT = getSumResComplT(result);
-        Double bestResultSumResComplT = getSumResComplT(bestResult);
-        return resultSumResComplT < bestResultSumResComplT;
-    }
-
-    private Double getSumResComplT(ReservationResult result) {
-        if (result.getSumResComplT() != null) {
-            return result.getSumResComplT();
-        }
-        double sumResComplT = 0;
-        for (Vehicle v : result.getCombination()) {
-            sumResComplT = sumResComplT + v.getResComplT();
-        }
-        result.setSumResComplT(sumResComplT);
-        return sumResComplT;
     }
 
     /**

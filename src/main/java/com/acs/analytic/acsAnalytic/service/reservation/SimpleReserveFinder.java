@@ -34,6 +34,43 @@ public class SimpleReserveFinder extends AbstractReserveFinder {
         return all;
     }
 
+    @Override
+    protected ReservationResult updateBestResult(ReservationResult bestResult, ReservationResult result) {
+        if (bestResult.getTime() == null || bestResult.getTime() > result.getTime()) {
+            if (checkOptimalResult(bestResult, result)) {
+                bestResult = result;
+                bestResult.activateDraft();
+//                    try {
+//                        System.out.println(new ObjectMapper().writeValueAsString(bestResult.getCombination()));
+//                    } catch (JsonProcessingException e) {
+//                        e.printStackTrace();
+//                    }
+            }
+        }
+        return bestResult;
+    }
+
+    private boolean checkOptimalResult(ReservationResult bestResult, ReservationResult result) {
+        if (bestResult.getCombination() == null) {
+            return true;
+        }
+        Double resultSumResComplT = getSumResComplT(result);
+        Double bestResultSumResComplT = getSumResComplT(bestResult);
+        return resultSumResComplT < bestResultSumResComplT;
+    }
+
+    private Double getSumResComplT(ReservationResult result) {
+        if (result.getSumResComplT() != null) {
+            return result.getSumResComplT();
+        }
+        double sumResComplT = 0;
+        for (Vehicle v : result.getCombination()) {
+            sumResComplT = sumResComplT + v.getResComplT();
+        }
+        result.setSumResComplT(sumResComplT);
+        return sumResComplT;
+    }
+
     /**
      * Для генерации новых комбинаций. Входной авто в один и тот же список ставится поочередно в новое место.
      * Каждая постановка - новая коомбинация
