@@ -20,7 +20,11 @@ import com.acs.analytic.acsAnalytic.model.TierVehicle;
 @AllArgsConstructor
 public class InitialDataDto {
 
+    /**
+     * Common settings
+     */
     private String name;
+    private Boolean isFullReport;
 
     /**
      * Common Data (Tiers Data) is actual for AutoTraffic
