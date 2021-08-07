@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
@@ -19,7 +18,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -96,5 +94,9 @@ public class InitializedData implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     SimulationStatus status;
+
+    @OneToMany(mappedBy = "initializedData", cascade = CascadeType.ALL)
+    @Builder.Default
+    List<ReportData> reportData = new ArrayList<>();
 
 }

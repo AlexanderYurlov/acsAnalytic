@@ -1,20 +1,16 @@
 package com.acs.analytic.acsAnalytic.service.simulation;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import com.acs.analytic.acsAnalytic.model.InitialData;
-import com.acs.analytic.acsAnalytic.model.InitializedData;
 import com.acs.analytic.acsAnalytic.model.ReservationResult;
 import com.acs.analytic.acsAnalytic.model.SimulationResult;
 import com.acs.analytic.acsAnalytic.model.Tier;
 import com.acs.analytic.acsAnalytic.model.TierPumpConf;
 import com.acs.analytic.acsAnalytic.model.TierVehicle;
-import com.acs.analytic.acsAnalytic.model.enums.SimulationStatus;
-import com.acs.analytic.acsAnalytic.model.resp.ReportDetailsDataDto;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 import com.acs.analytic.acsAnalytic.service.PumpDataGenerationService;
 import com.acs.analytic.acsAnalytic.service.VehicleDataGenerationService;
@@ -31,29 +27,6 @@ public abstract class AbstractQueueProcessSimulationService {
     public final ObjectMapper om = new ObjectMapper();
 
     protected abstract ReserveFinder getReserveFinder();
-
-    /**
-     * Запуск процесса симуляции
-     *
-     * @return
-     */
-    public ReportDetailsDataDto simulate(InitializedData initializedData) {
-
-        Date startTime = new Date();
-
-        List<Vehicle> vehicles = initializedData.getVehicles();
-        TierPumpConf tierPumpConf = new TierPumpConf(initializedData.getInitialData(), initializedData.getTierPumps());
-
-        simulateVehicles(vehicles, tierPumpConf);
-
-        Date endTime = new Date();
-        System.out.println("Total execution time: " + (endTime.getTime() - startTime.getTime()) + "ms");
-
-        initializedData.setStatus(SimulationStatus.COMPLETED);
-        initializedData.setStartTime(startTime);
-        initializedData.setEndTime(endTime);
-        return new ReportDetailsDataDto(initializedData, vehicles);
-    }
 
     protected List<Vehicle> simulateVehicles(List<Vehicle> vehicles, TierPumpConf tierPumpConf) {
 

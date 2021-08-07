@@ -2,10 +2,8 @@ package com.acs.analytic.acsAnalytic.service.simulation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
 
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +14,7 @@ import com.acs.analytic.acsAnalytic.dao.VehicleRepository;
 import com.acs.analytic.acsAnalytic.model.InitialData;
 import com.acs.analytic.acsAnalytic.model.InitializedData;
 import com.acs.analytic.acsAnalytic.model.TierPumpConf;
+import com.acs.analytic.acsAnalytic.model.enums.SimulationStatus;
 import com.acs.analytic.acsAnalytic.model.resp.ReportDetailsDataDto;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 
@@ -30,9 +29,15 @@ public class SimulationService {
 
     @Async
     @Transactional
-    public Future<ReportDetailsDataDto> simulate(InitialData initialData, TierPumpConf tierPumpConf, List<Vehicle> vehicleList) {
+    public void simulate(InitialData initialData, TierPumpConf tierPumpConf, List<Vehicle> vehicleList) {
+        simulateBaseReportPart(initialData, tierPumpConf, vehicleList, SimulationStatus.COMPLETED);
+    }
+
+    @Transactional
+    public InitializedData simulateBaseReportPart(InitialData initialData, TierPumpConf tierPumpConf, List<Vehicle> vehicleList, SimulationStatus finalPartState) {
         InitializedData initializedData = initializedDataRepository.save(new InitializedData(initialData, tierPumpConf, vehicleList));
-        return new AsyncResult(queueProcessSimulationService.simulate(initializedData));
+        queueProcessSimulationService.simulateSingleReport(initializedData, finalPartState);
+        return initializedData;
     }
 
     @Transactional
