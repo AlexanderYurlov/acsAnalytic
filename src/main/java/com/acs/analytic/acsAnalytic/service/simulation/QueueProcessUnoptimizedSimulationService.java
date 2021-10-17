@@ -42,7 +42,7 @@ public class QueueProcessUnoptimizedSimulationService extends AbstractQueueProce
         simulateVehicles(vehicles, tierPumpConf);
 
         Date endTime = new Date();
-        System.out.println("Total execution time: " + (endTime.getTime() - startTime.getTime()) + "ms");
+        System.out.println("Total unoptimised execution time: " + (endTime.getTime() - startTime.getTime()) + "ms");
 
         initializedData.setStatus(SimulationStatus.COMPLETED);
         initializedData.setStartTime(startTime);

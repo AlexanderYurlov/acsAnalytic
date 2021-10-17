@@ -7,6 +7,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -15,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -56,8 +58,10 @@ public class TierPump {
     @OneToOne(cascade = CascadeType.ALL)
     Tier tier;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "initialized_data_id")
     InitializedData initializedData;
 
 }

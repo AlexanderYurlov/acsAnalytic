@@ -64,6 +64,8 @@ public class InitialData {
         }
         this.pumpMap = pumpMap;
         this.sharablePumps = dto.getSharablePumps();
+        this.rejectedReportDelta = dto.getRejectedReportDelta() != null ? dto.getRejectedReportDelta() : .1f;
+        this.totalPumpMap = dto.getPumpMap();
     }
 
     @PrePersist
@@ -71,6 +73,7 @@ public class InitialData {
         ObjectMapper om = new ObjectMapper();
         this.pumpMapStr = om.writeValueAsString(this.pumpMap);
         this.sharablePumpsStr = om.writeValueAsString(this.sharablePumps);
+        this.totalPumpMapStr = om.writeValueAsString(this.totalPumpMap);
         this.rStr = om.writeValueAsString(this.r);
     }
 
@@ -105,6 +108,12 @@ public class InitialData {
     @Column(name = "pump_map", columnDefinition = "jsonb")
     private String pumpMapStr;
 
+    @Transient
+    private Map<Integer, Integer> totalPumpMap;
+    @Type(type = "jsonb")
+    @Column(name = "total_pump_map", columnDefinition = "jsonb")
+    private String totalPumpMapStr;
+
     /**
      * Numbers of sharable pumps per tier: PS1, …, PSN;
      */
@@ -130,7 +139,13 @@ public class InitialData {
      * типы зарядок автомобилей и их соотношение - R ( сумма = 1)
      */
     @Transient
-    List<TierVehicle> r;
+    private List<TierVehicle> r;
+
+    /**
+     * Дельта отчётов
+     */
+    @Transient
+    private Float rejectedReportDelta;
 
     @Type(type = "jsonb")
     @Column(name = "r", columnDefinition = "jsonb")

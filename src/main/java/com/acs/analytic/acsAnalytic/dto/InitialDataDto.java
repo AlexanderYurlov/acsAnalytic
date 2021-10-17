@@ -81,4 +81,9 @@ public class InitialDataDto {
      */
     private Integer vehMax;
 
+    /**
+     * step (delta) for rejectedReport difference between sharable and regular pumps for simulations
+     */
+    private Float rejectedReportDelta;
+
 }

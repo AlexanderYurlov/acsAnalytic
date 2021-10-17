@@ -13,6 +13,7 @@ import lombok.Setter;
 
 import com.acs.analytic.acsAnalytic.model.InitialData;
 import com.acs.analytic.acsAnalytic.model.InitializedData;
+import com.acs.analytic.acsAnalytic.model.ReportData;
 import com.acs.analytic.acsAnalytic.model.Tier;
 import com.acs.analytic.acsAnalytic.model.TierPump;
 import com.acs.analytic.acsAnalytic.model.enums.SimulationStatus;
@@ -53,6 +54,7 @@ public class ReportDetailsDataDto {
     private Date endTime;
     private SimulationStatus status;
     private List<ScheduleData> scheduleData;
+    private ReportData reportData;
 
     public ReportDetailsDataDto(InitializedData initializedData) {
 
@@ -89,6 +91,7 @@ public class ReportDetailsDataDto {
         startTime = initializedData.getStartTime();
         endTime = initializedData.getEndTime();
         status = initializedData.getStatus();
+        reportData = initializedData.getReportData();
     }
 
     private String printTotalPumpsPerTier(Map<String, Integer> pumpMap, Map<String, Integer> sharablePumpMap) {

@@ -16,6 +16,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -95,8 +96,7 @@ public class InitializedData implements Serializable {
     @Column(name = "status")
     SimulationStatus status;
 
-    @OneToMany(mappedBy = "initializedData", cascade = CascadeType.ALL)
-    @Builder.Default
-    List<ReportData> reportData = new ArrayList<>();
+    @OneToOne(cascade = CascadeType.ALL)
+    ReportData reportData;
 
 }

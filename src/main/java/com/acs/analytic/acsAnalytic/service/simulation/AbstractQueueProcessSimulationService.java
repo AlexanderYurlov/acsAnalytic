@@ -49,6 +49,7 @@ public abstract class AbstractQueueProcessSimulationService {
 //                vehicle.setSharableState(false);
             }
         }
+        System.out.println(vehicles.size() + " is completed for tierPumpConf \n" +tierPumpConf.getTierPumpsMap() + "\n" + tierPumpConf.getSharableTierPumpsMap());
         return vehicles;
     }
 

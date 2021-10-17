@@ -1,7 +1,9 @@
 package com.acs.analytic.acsAnalytic.model;
 
+import java.util.List;
 import java.util.Map;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -10,22 +12,28 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.PrePersist;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.acs.analytic.acsAnalytic.model.deserializer.SharableConfDeserializer;
+import com.acs.analytic.acsAnalytic.model.dto.SharableConfDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.vladmihalcea.hibernate.type.json.JsonNodeBinaryType;
 
-@Table(name = "full_report_data")
+@TypeDef(
+        name = "jsonb",
+        typeClass = JsonNodeBinaryType.class
+)
+@Table(name = "report_data")
 @Entity
 @Data
 @NoArgsConstructor
@@ -33,36 +41,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Builder
 public class ReportData {
 
-    @PrePersist
-    void prePersist() throws JsonProcessingException {
-        ObjectMapper om = new ObjectMapper();
-        this.pumpMapStr = om.writeValueAsString(this.pumpMap);
-        this.sharablePumpsStr = om.writeValueAsString(this.sharablePumps);
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "initialized_data_id")
     @JsonIgnore
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "initialized_data_id")
     private InitializedData initializedData;
 
-    @Transient
-    private Map<Integer, Integer> pumpMap;
     @Type(type = "jsonb")
-    @Column(name = "pump_map", columnDefinition = "jsonb")
-    private String pumpMapStr;
-
-    @Transient
-    private Map<Integer, Integer> sharablePumps;
-    @Type(type = "jsonb")
-    @Column(name = "sharable_pumps", columnDefinition = "jsonb")
-    private String sharablePumpsStr;
-
-    @Column(name = "rejected")
-    private Long rejected;
+    @Column(name = "sharable_conf", columnDefinition = "jsonb")
+    @JsonDeserialize(using = SharableConfDeserializer.class)
+    private List<SharableConfDto> sharableConf;
 
 }

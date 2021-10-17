@@ -1,5 +1,6 @@
 package com.acs.analytic.acsAnalytic.controller;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -8,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,7 +17,6 @@ import lombok.AllArgsConstructor;
 import com.acs.analytic.acsAnalytic.dao.InitializedDataRepository;
 import com.acs.analytic.acsAnalytic.model.InitializedData;
 import com.acs.analytic.acsAnalytic.model.resp.ReportDetailsDataDto;
-import com.acs.analytic.acsAnalytic.service.simulation.QueueProcessSimulationService;
 import com.acs.analytic.acsAnalytic.service.simulation.SimulationService;
 import com.sun.istack.NotNull;
 
@@ -63,6 +62,7 @@ public class SimulateController {
         List<InitializedData> initializedData = initializedDataRepository.findAll();
         List<ReportDetailsDataDto> reportDetailsDataDtoList = initializedData.stream()
                 .map(ReportDetailsDataDto::new)
+                .sorted(Comparator.comparing(ReportDetailsDataDto::getId))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(reportDetailsDataDtoList);
     }
