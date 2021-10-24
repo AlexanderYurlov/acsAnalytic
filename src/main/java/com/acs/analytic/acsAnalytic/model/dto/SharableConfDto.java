@@ -44,8 +44,7 @@ public class SharableConfDto {
         var rejectedMap = new HashMap<Integer, Integer>();
         vehicles.forEach(v -> {
             var tierId = v.getTierId();
-            var pumpId = v.getPumpId();
-            if (pumpId == 0) {
+            if (v.getChargedTierId() == 0) {
                 var rejectedByTier = rejectedMap.getOrDefault(tierId, 0);
                 rejectedMap.put(tierId, ++rejectedByTier);
             }

@@ -52,8 +52,6 @@ public class PumpDataGenerationService {
             var sharablePumpByCurrentId = 0;
             var regularPump = total.get(tierId);
             while (sharablePumpByCurrentId <= total.get(tierId)) {
-                System.out.println(sharablePumpByCurrentId + " - " + total.get(tierId));
-                System.out.println(tierPumpConfs.size());
                 for (TierPumpConf tierPumpConf : tierPumpConfs) {
                     tierPumpConfsTemp.add(new TierPumpConf(tierPumpConf, tiers, tierId, regularPump, sharablePumpByCurrentId));
                 }
