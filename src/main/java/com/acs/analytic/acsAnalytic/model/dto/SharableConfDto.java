@@ -1,5 +1,6 @@
 package com.acs.analytic.acsAnalytic.model.dto;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,10 @@ public class SharableConfDto {
 
     private Map<Integer, SharableConfTierDto> confPerTier = new HashMap<>();
     private Map<Integer, Integer> rejectedMap;
+    /**
+     * temporary param
+     */
+    private List<Integer> rejectedIds;
 
 
     public SharableConfDto(TierPumpConf tpConf, List<Vehicle> vehicles) {
@@ -41,12 +46,14 @@ public class SharableConfDto {
     }
 
     private Map<Integer, Integer> calculateRejectedMap(List<Vehicle> vehicles) {
+        rejectedIds = new ArrayList<>();
         var rejectedMap = new HashMap<Integer, Integer>();
         vehicles.forEach(v -> {
             var tierId = v.getTierId();
             if (v.getChargedTierId() == 0) {
                 var rejectedByTier = rejectedMap.getOrDefault(tierId, 0);
                 rejectedMap.put(tierId, ++rejectedByTier);
+                rejectedIds.add(v.getId());
             }
         });
         return rejectedMap;
