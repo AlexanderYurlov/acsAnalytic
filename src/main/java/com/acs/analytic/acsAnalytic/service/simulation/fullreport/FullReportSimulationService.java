@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import lombok.AllArgsConstructor;
 
 import com.acs.analytic.acsAnalytic.dao.InitializedDataRepository;
-import com.acs.analytic.acsAnalytic.dao.ReportDataRepository;
 import com.acs.analytic.acsAnalytic.model.InitialData;
 import com.acs.analytic.acsAnalytic.model.InitializedData;
 import com.acs.analytic.acsAnalytic.model.ReportData;
@@ -23,7 +22,6 @@ import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 import com.acs.analytic.acsAnalytic.service.PumpDataGenerationService;
 import com.acs.analytic.acsAnalytic.service.simulation.QueueProcessSimulationService;
 import com.acs.analytic.acsAnalytic.service.simulation.SimulationService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 @AllArgsConstructor
@@ -31,10 +29,8 @@ public class FullReportSimulationService {
 
     private final QueueProcessSimulationService queueProcessSimulationService;
     private final PumpDataGenerationService pumpDataGenerationService;
-    private final ReportDataRepository reportDataRepository;
     private final SimulationService simulationService;
     private final InitializedDataRepository initializedDataRepository;
-    private static final ObjectMapper om = new ObjectMapper();
 
     @Async
     @Transactional

@@ -22,7 +22,6 @@ public class PumpDataGenerationService {
     public List<TierPumpConf> generateList(InitialData initialData) {
         var tiers = initialData.getTiers();
         validate(initialData);
-        var delta = initialData.getRejectedReportDelta();
         var total = initialData.getTotalPumpMap();
         var deltaMap = new HashMap<Integer, Integer>();
         for (Integer tierId : total.keySet()) {
@@ -30,8 +29,9 @@ public class PumpDataGenerationService {
                 //zero tier has no sharable pumps
                 continue;
             }
-            Integer intDelta = Math.round(total.get(tierId) * delta);
-            deltaMap.put(tierId, intDelta);
+            int intDelta = Math.round(total.get(tierId) * initialData.getRejectedReportDelta());
+            Integer delta = Math.max(intDelta, 1);
+            deltaMap.put(tierId, delta);
 
         }
         List<TierPumpConf> tierPumpConfs = generateTierPumpConfs(tiers, deltaMap, total);
@@ -52,6 +52,8 @@ public class PumpDataGenerationService {
             var sharablePumpByCurrentId = 0;
             var regularPump = total.get(tierId);
             while (sharablePumpByCurrentId <= total.get(tierId)) {
+                System.out.println(sharablePumpByCurrentId + " - " + total.get(tierId));
+                System.out.println(tierPumpConfs.size());
                 for (TierPumpConf tierPumpConf : tierPumpConfs) {
                     tierPumpConfsTemp.add(new TierPumpConf(tierPumpConf, tiers, tierId, regularPump, sharablePumpByCurrentId));
                 }
@@ -181,9 +183,9 @@ public class PumpDataGenerationService {
                 .rejectedReportDelta(.1f)
 //                .n(100)
 //                .pumpTotal(3)
-                .pumpMap      (Map.of(1, 13, 2, 6, 3, 3))
+                .pumpMap(Map.of(1, 13, 2, 6, 3, 3))
                 .sharablePumps(Map.of(2, 3, 3, 2))
-                .totalPumpMap (Map.of(1, 13, 2, 9, 3, 5))
+                .totalPumpMap(Map.of(1, 13, 2, 9, 3, 5))
                 .arrivalRate(12f)
 //                .timeGeneration()
 //                .n(11)
@@ -197,7 +199,7 @@ public class PumpDataGenerationService {
 //        }
 
         List<TierPumpConf> tierPumpConfs = new PumpDataGenerationService().generateList(initialData);
-        tierPumpConfs.forEach(t-> System.out.println(t + "____________"));
+        tierPumpConfs.forEach(t -> System.out.println(t + "____________"));
 //        System.out.println(tierPumpConf.getTierPumpsMap().hashCode());
 //        try {
 //            System.out.println(new ObjectMapper().writeValueAsString(tierPumpConfs));
