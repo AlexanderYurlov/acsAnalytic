@@ -74,9 +74,6 @@ public abstract class AbstractQueueProcessSimulationService {
         for (int chargeTierId = tierId; chargeTierId <= tierPumpConf.getSharableTierPumpsMap().size(); chargeTierId++) {
             result = trySharablePumpsReserve(veh, simulationResult, tierPumpConf, chargeTierId, true);
             if (result) {
-                if (tierId != chargeTierId) {
-                    System.out.println("trySharablePumpsReserve true " + tierId + " - " + chargeTierId);
-                }
                 return true;
             }
         }

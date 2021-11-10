@@ -40,7 +40,16 @@ import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Vehicle {
+public class Vehicle implements Cloneable {
+
+    public Vehicle clone() {
+        try {
+            return (Vehicle) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -177,7 +186,7 @@ public class Vehicle {
                 ", draftComplT=" + draftComplT +
                 ", resStartChargeT=" + resStartChargeT +
                 ", resComplT=" + resComplT +
-                ", initializedData=" + initializedData.getId() +
+                ", initializedData=" + (initializedData != null ? initializedData.getId() : null) +
                 '}';
     }
 

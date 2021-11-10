@@ -42,19 +42,18 @@ public class QueueProcessSimulationService extends AbstractQueueProcessSimulatio
         initializedData.setEndTime(endTime);
     }
 
-    public List<Vehicle> simulatePartOfMultiReport(InitializedData initializedData, TierPumpConf tierPumpConf) {
+    public List<Vehicle> simulatePartOfMultiReport(InitializedData initializedData, TierPumpConf tierPumpConf, List<Vehicle> clonedVehicles) {
 
         System.out.println("[" + initializedData.getId() + "] Started tierPumpConf: " + tierPumpConf);
 
         Date startTime = new Date();
 
-        List<Vehicle> vehicles = initializedData.getVehicles();
-        simulateVehicles(vehicles, tierPumpConf);
+        simulateVehicles(clonedVehicles, tierPumpConf);
 
         Date endTime = new Date();
         System.out.println("Total execution time: " + (endTime.getTime() - startTime.getTime()) + "ms");
 
-        return vehicles;
+        return clonedVehicles;
     }
 
 }

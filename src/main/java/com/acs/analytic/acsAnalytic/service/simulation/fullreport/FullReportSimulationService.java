@@ -3,6 +3,7 @@ package com.acs.analytic.acsAnalytic.service.simulation.fullreport;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
@@ -34,17 +35,18 @@ public class FullReportSimulationService {
 
     @Async
     @Transactional
-    public void simulate(InitialData initialData, List<Vehicle> vehicleList) {
+    public void simulate(InitialData initialData, List<Vehicle> vehicles) {
         Date startTime = new Date();
 
         TierPumpConf tierPumpConf = pumpDataGenerationService.generate(initialData);
-        InitializedData initializedData = simulationService.simulateBaseReportPart(initialData, tierPumpConf, vehicleList, SimulationStatus.IN_PROGRESS);
+        InitializedData initializedData = simulationService.simulateBaseReportPart(initialData, tierPumpConf, vehicles, SimulationStatus.IN_PROGRESS);
 
+        List<Vehicle> clonedVehicles = vehicles.stream().map(Vehicle::clone).collect(Collectors.toList());
         List<SharableConfDto> sharableConfs = new ArrayList<>();
         List<TierPumpConf> tierPumpConfs = pumpDataGenerationService.generateList(initialData);
         for (TierPumpConf tpConf : tierPumpConfs) {
-            List<Vehicle> vehicles = queueProcessSimulationService.simulatePartOfMultiReport(initializedData, tpConf);
-            SharableConfDto sharableConf = new SharableConfDto(tpConf, vehicles);
+            List<Vehicle> vehs = queueProcessSimulationService.simulatePartOfMultiReport(initializedData, tpConf, clonedVehicles);
+            SharableConfDto sharableConf = new SharableConfDto(tpConf, vehs);
             sharableConfs.add(sharableConf);
         }
         ReportData rp = ReportData.builder()
@@ -59,4 +61,5 @@ public class FullReportSimulationService {
         initializedDataRepository.save(initializedData);
         System.out.println("Total full report execution time: " + (endTime.getTime() - startTime.getTime()) + "ms");
     }
+
 }
