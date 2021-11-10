@@ -8,6 +8,7 @@ import java.util.Map;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.acs.analytic.acsAnalytic.model.Tier;
 import com.acs.analytic.acsAnalytic.model.TierPump;
 import com.acs.analytic.acsAnalytic.model.TierPumpConf;
 import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
@@ -17,7 +18,8 @@ import com.acs.analytic.acsAnalytic.model.vehicle.Vehicle;
 public class SharableConfDto {
 
     private Map<Integer, SharableConfTierDto> confPerTier = new HashMap<>();
-    private Map<Integer, Integer> rejectedMap;
+    private Map<Integer, Integer> rejectedMap = new HashMap<>();
+    private Map<Integer, Double> utilizationMap = new HashMap<>();
     /**
      * temporary param
      */
@@ -27,7 +29,12 @@ public class SharableConfDto {
     public SharableConfDto(TierPumpConf tpConf, List<Vehicle> vehicles) {
         putAllData(tpConf.getSharableTierPumpsMap(), true);
         putAllData(tpConf.getTierPumpsMap(), false);
-        rejectedMap = calculateRejectedMap(vehicles);
+        rejectedMap = calculateRejectedMap(tpConf.getTiers(), vehicles);
+        utilizationMap = calculateUtilizationMap(vehicles);
+    }
+
+    private Map<Integer, Double> calculateUtilizationMap(List<Vehicle> vehicles) {
+        return null;
     }
 
     private void putAllData(Map<Integer, List<TierPump>> tierPumpsMap, boolean isSharable) {
@@ -45,9 +52,10 @@ public class SharableConfDto {
         }
     }
 
-    private Map<Integer, Integer> calculateRejectedMap(List<Vehicle> vehicles) {
+    private Map<Integer, Integer> calculateRejectedMap(List<Tier> tiers, List<Vehicle> vehicles) {
         rejectedIds = new ArrayList<>();
         var rejectedMap = new HashMap<Integer, Integer>();
+        tiers.forEach(t -> rejectedMap.put(t.getId(), 0));
         vehicles.forEach(v -> {
             var tierId = v.getTierId();
             if (v.getChargedTierId() == 0) {

@@ -27,7 +27,13 @@ public class TierPumpConf {
      */
     Map<Integer, List<TierPump>> tierPumpsMap;
 
+    /**
+     * Все уровни
+     */
+    List<Tier> tiers;
+
     public TierPumpConf(InitialData initialData, List<TierPump> tierPumps) {
+        tiers = initialData.getTiers();
         sharableTierPumpsMap = new HashMap<>();
         tierPumpsMap = new HashMap<>();
         for (Tier t : initialData.getTiers()) {
@@ -44,6 +50,7 @@ public class TierPumpConf {
     }
 
     public TierPumpConf(TierPumpConf tierPumpConf, List<Tier> tiers, int tierId, int regularPump, int sharablePump) {
+        this.tiers = tiers;
         Map tierPumpsMap = tierPumpConf.getTierPumpsMap() == null ? new HashMap() : tierPumpConf.getTierPumpsMap();
         setTierPumpsMap(new HashMap<>(tierPumpsMap));
         Map sharableTierPumpsMap = tierPumpConf.getSharableTierPumpsMap() == null ? new HashMap() : tierPumpConf.getSharableTierPumpsMap();

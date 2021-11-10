@@ -107,7 +107,7 @@ public class PumpDataGenerationService {
         }
         System.out.println(tierPumpsMap);
         System.out.println(sharableTierPumpsMap);
-        return new TierPumpConf(sharableTierPumpsMap, tierPumpsMap);
+        return new TierPumpConf(sharableTierPumpsMap, tierPumpsMap, tiers);
     }
 
     private void validate(InitialData initialData) {
