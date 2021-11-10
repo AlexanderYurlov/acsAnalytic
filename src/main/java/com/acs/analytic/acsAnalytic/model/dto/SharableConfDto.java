@@ -19,7 +19,7 @@ public class SharableConfDto {
 
     private Map<Integer, SharableConfTierDto> confPerTier = new HashMap<>();
     private Map<Integer, Integer> rejectedMap = new HashMap<>();
-    private Map<Integer, Double> utilizationMap = new HashMap<>();
+    private Map<Integer, Integer> utilizationMap = new HashMap<>();
     /**
      * temporary param
      */
@@ -30,11 +30,61 @@ public class SharableConfDto {
         putAllData(tpConf.getSharableTierPumpsMap(), true);
         putAllData(tpConf.getTierPumpsMap(), false);
         rejectedMap = calculateRejectedMap(tpConf.getTiers(), vehicles);
-        utilizationMap = calculateUtilizationMap(vehicles);
+        utilizationMap = calculateUtilizationMap(tpConf, vehicles);
     }
 
-    private Map<Integer, Double> calculateUtilizationMap(List<Vehicle> vehicles) {
-        return null;
+    private Map<Integer, Integer> calculateUtilizationMap(TierPumpConf tpConf, List<Vehicle> vehicles) {
+        Map<Integer, Double> pumpChargeTime = new HashMap<>();
+        Map<Integer, Vehicle> lastVehicle = new HashMap<>();
+        vehicles.forEach(v -> {
+            if (v.getChargedTierId() != 0) {
+                var t = v.getActComplT() - v.getActStartChargeT();
+                var pumpId = v.getPumpId();
+                var time = pumpChargeTime.getOrDefault(pumpId, 0d);
+                pumpChargeTime.put(pumpId, time + t);
+                if (lastVehicle.get(pumpId) == null || lastVehicle.get(pumpId).getActComplT() < v.getActComplT()) {
+                    lastVehicle.put(pumpId, v);
+                }
+            }
+        });
+        return calculateUtilizationTime(pumpChargeTime, lastVehicle, tpConf);
+    }
+
+    private Map<Integer, Integer> calculateUtilizationTime(Map<Integer, Double> pumpChargeTime, Map<Integer, Vehicle> lastVehicle, TierPumpConf tpConf) {
+        Map<Integer, List<TierPump>> tierPumpsMap = new HashMap<>();
+        tpConf.getTiers().stream().map(Tier::getId).forEach(k -> {
+            List<TierPump> tierPumpsList = tierPumpsMap.getOrDefault(k, new ArrayList<>());
+            tierPumpsList.addAll(tpConf.getTierPumpsMap().get(k));
+            tierPumpsList.addAll(tpConf.getSharableTierPumpsMap().get(k));
+            tierPumpsMap.put(k, tierPumpsList);
+        });
+
+        Map<Integer, Integer> utilizationTimeMap = new HashMap<>();
+        tierPumpsMap.keySet().forEach(k -> {
+            Double defaultTotalTime = null;
+            double workTime = 0d;
+            double totalTime = 0d;
+            int xDefaultTotalTime = 0;
+            for (TierPump tierPump : tierPumpsMap.get(k)) {
+                var pumpId = tierPump.getId();
+                if (pumpChargeTime.get(pumpId) == null) {
+                    xDefaultTotalTime = xDefaultTotalTime + 1;
+                    continue;
+                }
+                workTime = workTime + pumpChargeTime.get(pumpId);
+                totalTime = totalTime + lastVehicle.get(pumpId).getActComplT();
+                if (defaultTotalTime == null) {
+                    defaultTotalTime = lastVehicle.get(pumpId).getActComplT();
+                } else {
+                    defaultTotalTime = (defaultTotalTime + lastVehicle.get(pumpId).getActComplT()) / 2;
+                }
+            }
+            if (xDefaultTotalTime != 0) {
+                totalTime = totalTime + xDefaultTotalTime * defaultTotalTime;
+            }
+            utilizationTimeMap.put(k, (int) (workTime * 100 / totalTime));
+        });
+        return utilizationTimeMap;
     }
 
     private void putAllData(Map<Integer, List<TierPump>> tierPumpsMap, boolean isSharable) {
