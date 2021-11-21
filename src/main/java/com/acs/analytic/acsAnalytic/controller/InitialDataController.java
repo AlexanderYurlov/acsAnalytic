@@ -29,11 +29,12 @@ import com.acs.analytic.acsAnalytic.service.simulation.fullreport.FullReportSimu
 public class InitialDataController {
 
     public static final String BASE_PATH = "acs/init_data";
-    public static final String FULL_REPORT_PATH = "acs/init_data/full_report";
     public static final String BY_ID = "/{id}";
     public static final String GET_BY_ID = BASE_PATH + BY_ID;
     public static final String GENERATE_DATA_TEST = BASE_PATH + "/test";
     public static final String GENERATE_DATA_CSV = BASE_PATH + "/csv";
+    public static final String FULL_REPORT = BASE_PATH + "/full_report";
+    public static final String GENERATE_DATA_CSV_FULL_REPORT = FULL_REPORT + "/csv";
 
     private final VehicleDataGenerationService vehicleDataGenerationService;
     private final FullReportSimulationService fullReportSimulationService;
@@ -51,7 +52,7 @@ public class InitialDataController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(FULL_REPORT_PATH)
+    @PostMapping(FULL_REPORT)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Void> fullReport(@RequestBody InitialDataDto dto) {
         InitialData initialData = new InitialData(dto);
@@ -83,12 +84,22 @@ public class InitialDataController {
 
     @GetMapping(GENERATE_DATA_CSV)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<ReportDetailsDataDto> check() {
+    public ResponseEntity<ReportDetailsDataDto> generateDataCsv() {
         InitialDataDto dto = csvReadService.getInitialDataDto();
         InitialData initialData = new InitialData(dto);
         TierPumpConf tierPumpConf = pumpDataGenerationService.generate(initialData);
         List<Vehicle> vehicleList = csvReadService.read();
         simulationService.simulate(initialData, tierPumpConf, vehicleList);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(GENERATE_DATA_CSV_FULL_REPORT)
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<ReportDetailsDataDto> generateDataCsvFullReport() {
+        InitialDataDto dto = csvReadService.getInitialDataDto();
+        InitialData initialData = new InitialData(dto);
+        List<Vehicle> vehicleList = csvReadService.read();
+        fullReportSimulationService.simulate(initialData, vehicleList);
         return ResponseEntity.ok().build();
     }
 

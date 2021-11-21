@@ -55,6 +55,8 @@ public class ReportDetailsDataDto {
     private SimulationStatus status;
     private List<ScheduleData> scheduleData;
     private ReportData reportData;
+    private InitialData initialData;
+
 
     public ReportDetailsDataDto(InitializedData initializedData) {
 
@@ -92,6 +94,15 @@ public class ReportDetailsDataDto {
         endTime = initializedData.getEndTime();
         status = initializedData.getStatus();
         reportData = initializedData.getReportData();
+        this.initialData = initializedData.getInitialData();
+        this.initialData.setPumpMap(putIntegerMap(pumpMap));
+        this.initialData.setSharablePumps(putIntegerMap(sharablePumpMap));
+    }
+
+    private Map<Integer, Integer> putIntegerMap(Map<String, Integer> pumpMap) {
+        Map<Integer, Integer> map = new HashMap<>();
+        pumpMap.forEach((key, value) -> map.put(Integer.valueOf(key), value));
+        return map;
     }
 
     private String printTotalPumpsPerTier(Map<String, Integer> pumpMap, Map<String, Integer> sharablePumpMap) {
