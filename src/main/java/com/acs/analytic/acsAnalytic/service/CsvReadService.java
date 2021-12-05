@@ -1,7 +1,8 @@
 package com.acs.analytic.acsAnalytic.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
@@ -23,47 +24,57 @@ public class CsvReadService {
     public InitialDataDto getInitialDataDto() {
         return InitialDataDto.builder()
                 .name("Check_10_50,30,20_0,0,0.csv")
-                .tiers(List.of(
-                        Tier.builder()
-                                .id(1)
-                                .batteryCapacity(14)
-                                .energyAcceptanceRate(3.3f)
-                                .maxWaitingTime(480)
-                                .build(),
-                        Tier.builder()
-                                .id(2)
-                                .batteryCapacity(20)
-                                .energyAcceptanceRate(6.6f)
-                                .maxWaitingTime(300)
-                                .build(),
-                        Tier.builder()
-                                .id(3)
-                                .batteryCapacity(81)
-                                .energyAcceptanceRate(120f)
-                                .maxWaitingTime(120)
-                                .build()
-                        )
+                .tiers(new ArrayList<>() {{
+                           add(Tier.builder()
+                                   .id(1)
+                                   .batteryCapacity(14)
+                                   .energyAcceptanceRate(3.3f)
+                                   .maxWaitingTime(480)
+                                   .build());
+                           add(Tier.builder()
+                                   .id(2)
+                                   .batteryCapacity(20)
+                                   .energyAcceptanceRate(6.6f)
+                                   .maxWaitingTime(300)
+                                   .build());
+                           add(Tier.builder()
+                                   .id(3)
+                                   .batteryCapacity(81)
+                                   .energyAcceptanceRate(120f)
+                                   .maxWaitingTime(120)
+                                   .build());
+                       }}
                 )
                 .vehMax(1000)
                 .rw(0.0f)
                 .rr(1.0f)
-                .r(List.of(
-                        TierVehicle.builder()
-                                .vehicleRatio(.5f)
-                                .tierIndex(1)
-                                .build(),
-                        TierVehicle.builder()
-                                .vehicleRatio(.3f)
-                                .tierIndex(2)
-                                .build(),
-                        TierVehicle.builder()
-                                .vehicleRatio(.2f)
-                                .tierIndex(3)
-                                .build()
-                        )
+                .r(new ArrayList<>() {
+                       {
+                           add(TierVehicle.builder()
+                                   .vehicleRatio(.5f)
+                                   .tierIndex(1)
+                                   .build());
+                           add(TierVehicle.builder()
+                                   .vehicleRatio(.3f)
+                                   .tierIndex(2)
+                                   .build());
+                           add(TierVehicle.builder()
+                                   .vehicleRatio(.2f)
+                                   .tierIndex(3)
+                                   .build());
+                       }
+                   }
                 )
-                .pumpMap(Map.of(1, 21, 2, 9, 3, 2))
-                .sharablePumps(Map.of(1, 0, 2, 0, 3, 0))
+                .pumpMap(new HashMap<>() {{
+                    put(1, 21);
+                    put(2, 9);
+                    put(3, 2);
+                }})
+                .sharablePumps(new HashMap<>() {{
+                    put(1, 0);
+                    put(2, 0);
+                    put(3, 0);
+                }})
                 .arrivalRate(10f)
                 .build();
     }

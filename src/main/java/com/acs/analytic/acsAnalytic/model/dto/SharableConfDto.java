@@ -61,7 +61,7 @@ public class SharableConfDto {
 
         Map<Integer, Integer> utilizationTimeMap = new HashMap<>();
         tierPumpsMap.keySet().forEach(k -> {
-            Double defaultTotalTime = null;
+            double defaultTotalTime = 0d;
             double workTime = 0d;
             double totalTime = 0d;
             int xDefaultTotalTime = 0;
@@ -73,11 +73,7 @@ public class SharableConfDto {
                 }
                 workTime = workTime + pumpChargeTime.get(pumpId);
                 totalTime = totalTime + lastVehicle.get(pumpId).getActComplT();
-                if (defaultTotalTime == null) {
-                    defaultTotalTime = lastVehicle.get(pumpId).getActComplT();
-                } else {
-                    defaultTotalTime = (defaultTotalTime + lastVehicle.get(pumpId).getActComplT()) / 2;
-                }
+                defaultTotalTime = (defaultTotalTime + lastVehicle.get(pumpId).getActComplT()) / 2;
             }
             if (xDefaultTotalTime != 0) {
                 totalTime = totalTime + xDefaultTotalTime * defaultTotalTime;
